@@ -19,6 +19,10 @@ public class Program {
 
         BasicConfigurator.configure();
 
+        System.out.println("Enter Company name: ");
+
+        System.out.println("Enter Company ticker: ");
+
         //StockData stockPredict = new StockData();
         //stockPredict.fetchData();
 
