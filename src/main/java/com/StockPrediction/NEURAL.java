@@ -1,10 +1,9 @@
-package com.example;
+package com.StockPrediction;
 
 import org.encog.ConsoleStatusReportable;
 import org.encog.Encog;
 import org.encog.ml.MLRegression;
 import org.encog.ml.data.MLData;
-import org.encog.ml.data.MLDataSet;
 import org.encog.ml.data.versatile.NormalizationHelper;
 import org.encog.ml.data.versatile.VersatileMLDataSet;
 import org.encog.ml.data.versatile.columns.ColumnDefinition;
@@ -19,10 +18,13 @@ import org.encog.util.arrayutil.VectorWindow;
 import org.encog.util.csv.CSVFormat;
 import org.encog.util.csv.ReadCSV;
 import org.encog.util.obj.SerializeObject;
-import org.encog.util.simple.TrainingSetUtil;
 
 import java.io.*;
 import java.util.Arrays;
+
+/*
+Much simpler feed forward network using Encog, but gives much better results.
+ */
 
 public class NEURAL {
 
@@ -76,6 +78,12 @@ public class NEURAL {
         Encog.getInstance().shutdown();
 
     }
+
+    /*
+    This method does not make a single prediction yet. It makes a prediction foreach step in a dataset.
+    This method also evaluates how many predictions which the network makes on a dataset are correct, meaning if they
+    matched the direction of the actual timesteps.
+     */
     public void test() throws IOException, ClassNotFoundException {
 
 
@@ -136,14 +144,6 @@ public class NEURAL {
         System.out.println("Prediction done! ");
         System.out.println("Number of predictions correct(matching same direction as actual): " + numRight);
         System.out.println("Number of predictions incorrect: " + numWrong);
-
-
-
-
-
-
-
-
 
     }
 

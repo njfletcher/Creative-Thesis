@@ -1,4 +1,4 @@
-package com.example;
+package com.StockPrediction;
 
 import org.apache.log4j.BasicConfigurator;
 
@@ -6,7 +6,7 @@ import org.apache.log4j.BasicConfigurator;
 
 /* Made by Nicholas Fletcher; Start Date: Oct 10, 2020
 ---------------------------------------------------------------------
- This program uses a Neural Network that implements an LSTM layer, to predict the closing price of a selected stock over
+ This program uses a Neural Network , to predict the closing price of a selected stock over
  a certain time period: either daily or weekly.
  It is trained using a large dataset of multiple stocks, all of which have the same variables involved: volume, closing price, and news sentiment.
  */

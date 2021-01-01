@@ -1,28 +1,29 @@
-package com.example;
+package com.StockPrediction;
 
 
-import org.datavec.api.records.reader.RecordReader;
+
 import org.datavec.api.records.reader.SequenceRecordReader;
-import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
-import org.datavec.api.records.reader.impl.transform.TransformProcessRecordReader;
 import org.datavec.api.records.reader.impl.transform.TransformProcessSequenceRecordReader;
 import org.datavec.api.split.FileSplit;
-import org.datavec.api.split.NumberedFileInputSplit;
 import org.datavec.api.transform.TransformProcess;
 import org.datavec.api.transform.schema.Schema;
-import org.nd4j.linalg.dataset.DataSet;
-
 import java.io.File;
+
+/*
+This class handles the process of taking a CSV file, applying a schema, and then applying a transformation process to that data.
+This is  used to convert a CSV file into a RecordReader, which only applies to Dl4j.
+-Not used currently
+ */
 
 
 public class StockRecordReader {
 
-    int numLinesSkip = 0;
+    private int numLinesSkip = 0;
     private String cName;
     private String cTick;
-    public SequenceRecordReader transformTrainProcessRecordReader;
-    public SequenceRecordReader transformTestProcessRecordReader;
+    private SequenceRecordReader transformTrainProcessRecordReader;
+    private SequenceRecordReader transformTestProcessRecordReader;
 
 
     /*
@@ -63,15 +64,12 @@ datetime, closing price, volume
 
         File directoryToLook = new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\");
         File inputTrainFile = new File(directoryToLook, "stockReports_train.csv");
-
         File inputTestFile = new File(directoryToLook, "stockReports_test.csv");
 
         //Define input reader and output writer:
         SequenceRecordReader rrTrain = new CSVSequenceRecordReader(1, ",");
         rrTrain.initialize(new FileSplit(inputTrainFile));
         transformTrainProcessRecordReader = new TransformProcessSequenceRecordReader(rrTrain,tp);
-
-
 
         SequenceRecordReader rrTest = new CSVSequenceRecordReader(1, ",");
         rrTest.initialize(new FileSplit(inputTestFile));

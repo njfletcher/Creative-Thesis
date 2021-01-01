@@ -1,4 +1,4 @@
-package com.example;
+package com.StockPrediction;
 
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -46,9 +46,11 @@ public class NnModel {
         //do later
     }
 
-
+/*uses SequenceRecordReaders to create DataSetIterators for both the train and test sets, which are used as inputs
+for Dl4j neural networks.
+-This network does not give good results, use Encog instead.
+ */
     public void train() throws IOException, InterruptedException {
-
 
         SequenceRecordReader trainReader = new CSVSequenceRecordReader(1, ",");
         trainReader.initialize(new FileSplit(new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_train.CSV")));
@@ -60,17 +62,12 @@ public class NnModel {
         testReader.initialize(new FileSplit(new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_test.CSV")));
         DataSetIterator testIter = new SequenceRecordReaderDataSetIterator(testReader, miniBatchSize, -1, 0, true);
 
-
-
-
         final DataNormalization dataNormalization = new NormalizerMinMaxScaler();
         dataNormalization.fitLabel(true);
         dataNormalization.fit(trainIter);
 
-
         testIter.setPreProcessor(dataNormalization);
         trainIter.setPreProcessor(dataNormalization);
-
 
         DataSet trainData = trainIter.next();
         DataSet testData = testIter.next();
@@ -78,11 +75,9 @@ public class NnModel {
         trainIter.reset();
         testIter.reset();
 
-
         System.out.println(trainData.sample(1));
         System.out.println(" ");
         System.out.println(testData.sample(1));
-
 
         //Initialize the user interface backend
         UIServer uiServer = UIServer.getInstance();
@@ -91,7 +86,6 @@ public class NnModel {
         //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
         uiServer.attach(statsStorage);
         //Then add the StatsListener to collect this information from the network, as it trains
-
 
         MultiLayerConfiguration config = new NeuralNetConfiguration.Builder()
                 .miniBatch(true)
@@ -114,11 +108,7 @@ public class NnModel {
         //http://localhost:9000/train/overview
         model.setListeners(new StatsListener(statsStorage));
 
-
         int numEpochs = 250;
-
-
-
         for (int i = 0; i < numEpochs; i++) {
             model.fit(trainData);
 
@@ -165,7 +155,7 @@ public class NnModel {
     }
 
 
-
+    //makes prediction using test dataset.
     public void makePrediction() throws IOException, InterruptedException {
 
         MultiLayerNetwork net2 = MultiLayerNetwork.load(new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\model.txt"), true);
@@ -187,8 +177,6 @@ public class NnModel {
         dataNormalization.revertLabels(timeSeriesOutput);
         long timeSeriesLength = timeSeriesOutput.size(2);        //Size of time dimension
         INDArray lastTimeStepProbabilities = timeSeriesOutput.get(NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(timeSeriesLength-1));
-
-
 
         System.out.println(lastTimeStepProbabilities);
 

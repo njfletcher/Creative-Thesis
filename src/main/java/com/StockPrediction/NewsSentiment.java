@@ -1,16 +1,14 @@
-package com.example;
+package com.StockPrediction;
 import java.io.IOException;
-import java.io.File;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.Scanner;
 import org.jsoup.*;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+/*
+This class will takes whatever company you are making a prediction on, and grabs some supplemental information about it(sector, industry, etc.)
+In the future, this will be one of the columns for the data. Daily news sentiment.
+ */
 
 
 public class NewsSentiment {
