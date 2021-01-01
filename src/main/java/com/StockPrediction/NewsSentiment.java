@@ -18,20 +18,19 @@ String tickerName;
 String compSector;
 String compIndustry;
 
-    public NewsSentiment(){
-
+    public NewsSentiment(String cName, String cTicker){
+        companyName = cName;
+        tickerName = cTicker;
     }
 
     public  void fetchNews(){
-        // this whole part is temporary
-        Scanner sc = new Scanner(System.in);
-        System.out.print("Enter a company name: ");
-        companyName = sc.next();
-        System.out.print("Enter a ticker symbol: ");
-        tickerName = sc.next();
+        //will work on later.
     }
 
-    public void getCompanyNews() throws IOException, InterruptedException {
+    /*relies on webscraping, so may be unreliable in the future.
+    For now it gets the sector of a selected company and the Industry name.
+     */
+    public void getCompanyInfo() throws IOException, InterruptedException {
         //https://www.tradingview.com/symbols/(TICKER SYMBOL GOES HERE)
         Document doc = Jsoup.connect("https://www.tradingview.com/symbols/" + tickerName.toUpperCase()).get();
         Elements e = doc.getElementsByClass("tv-widget-description__company-info");

@@ -22,16 +22,13 @@ public class StockData {
     private List<Date> dates = new ArrayList<Date>();
 
 
-    public StockData() throws IOException {
-        //do later
+    public StockData(String cName, String cTicker) throws IOException {
+        companyName = cName;
+        tickerName =cTicker;
     }
 
     //creates a training dataset and writes it to a CSV file. Contains 4 years of data.
     public void createTrain() throws IOException {
-        System.out.print("Enter a Company name: ");
-        companyName = sc.next();
-        System.out.print("Enter a ticker symbol: ");
-        tickerName = sc.next().toUpperCase();
         Calendar from = Calendar.getInstance();
         Calendar to = Calendar.getInstance();
         from.add(Calendar.YEAR, -5); //5 years ago
