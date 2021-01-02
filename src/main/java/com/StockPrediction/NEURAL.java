@@ -143,7 +143,6 @@ public class NEURAL {
 
         }
 
-
         System.out.println("Prediction done! ");
         System.out.println("Number of predictions correct(matching same direction as actual): " + numRight);
         System.out.println("Number of predictions incorrect: " + numWrong);

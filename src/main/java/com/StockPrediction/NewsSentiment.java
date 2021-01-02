@@ -34,8 +34,16 @@ String compIndustry;
         //https://www.tradingview.com/symbols/(TICKER SYMBOL GOES HERE)
         Document doc = Jsoup.connect("https://www.tradingview.com/symbols/" + tickerName.toUpperCase()).get();
         Elements e = doc.getElementsByClass("tv-widget-description__company-info");
-        compSector = e.first().text();
-        System.out.println(compSector);
+        String resultText = e.first().text();
+        System.out.println(resultText);
+
+        int firstInd = resultText.indexOf(":");
+        int nextInd = resultText.indexOf("Industry");
+        int lastInd = resultText.lastIndexOf(":");
+        compSector = resultText.substring(firstInd + 1, nextInd);
+        compIndustry = resultText.substring(lastInd + 1);
+        //System.out.println(compSector + " ; " + compIndustry);
+
         
     }
 

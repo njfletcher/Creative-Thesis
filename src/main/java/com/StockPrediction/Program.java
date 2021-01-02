@@ -29,14 +29,14 @@ public class Program {
 
         StockData stockD = new StockData(compName, ticker);
         //stockD.createTrain();
-        stockD.createPredData();
+        //stockD.createPredData();
 
         NewsSentiment news = new NewsSentiment(compName, ticker);
         news.getCompanyInfo();
 
         NEURAL nn = new NEURAL();
         //nn.train();
-        nn.predict();
+        //nn.predict();
 
     }
 }
