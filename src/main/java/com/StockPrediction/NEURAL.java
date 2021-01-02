@@ -33,7 +33,7 @@ public class NEURAL {
     String modelFilePath = "C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\model.EG";
     String baseDir = "C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\";
 
-    int windowSize = 10;
+    int windowSize = 20;
 
     public void train() throws IOException {
 
@@ -62,7 +62,7 @@ public class NEURAL {
         model.holdBackValidation(.2,false,1001);
         model.selectTrainingType(trainData);
 
-        MLRegression bestMethod = (MLRegression) model.crossvalidate(10,false);
+        MLRegression bestMethod = (MLRegression) model.crossvalidate(5,false);
 
 
        System.out.println("Training Error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
@@ -80,11 +80,11 @@ public class NEURAL {
     }
 
     /*
-    This method does not make a single prediction yet. It makes a prediction foreach step in a dataset.
+    This method does not make a single prediction. It makes a prediction foreach step in a dataset.
     This method also evaluates how many predictions which the network makes on a dataset are correct, meaning if they
     matched the direction of the actual timesteps.
      */
-    public void test() throws IOException, ClassNotFoundException {
+    public void predict() throws IOException, ClassNotFoundException {
 
 
         BasicNetwork network = (BasicNetwork)EncogDirectoryPersistence.loadObject(new File(baseDir+ "model.EG"));
@@ -97,6 +97,7 @@ public class NEURAL {
 
         ReadCSV csv = new ReadCSV(fileNameTest, false, format);
 
+
         String[] line = new String[2];
         double[] slice = new double[2];
         VectorWindow window = new VectorWindow(windowSize+1);
@@ -105,8 +106,8 @@ public class NEURAL {
         int numRight =0;
         int numWrong = 0;
 
-
-        while(csv.next() && stopAfter>0) {
+        //&& stopAfter>0
+        while(csv.next() ) {
 
             StringBuilder result = new StringBuilder();
             line[0] = csv.get(1);
@@ -127,6 +128,7 @@ public class NEURAL {
                 System.out.println(result.toString());
                 double pred = Double.parseDouble(predicted);
                 double corr = Double.parseDouble(correct);
+
                 if(Math.signum(pred) == Math.signum(corr)){
                     numRight++;
                 }
@@ -140,11 +142,35 @@ public class NEURAL {
 
 
         }
-        Encog.getInstance().shutdown();
+
+
         System.out.println("Prediction done! ");
         System.out.println("Number of predictions correct(matching same direction as actual): " + numRight);
         System.out.println("Number of predictions incorrect: " + numWrong);
 
+
+        //Predicts a single timestep into the future. WHat is printed out is what is predicted to happen the next day.
+        //Need to double check this uses the correct input window.
+        if(!csv.next()){
+            line[0] = csv.get(1);
+            line[1] = csv.get(2);
+            normLoad.normalizeInputVector(line, slice, true);
+            window.copyWindow(input.getData(), 0);
+            MLData output = network.compute(input);
+            String predicted = normLoad.denormalizeOutputVectorToString(output)[0];
+            System.out.println(predicted);
+        }
+
+        Encog.getInstance().shutdown();
+
+    }
+
+
+    public void altTrain(){
+        //research other models
+    }
+    public void altPrediction(){
+        //research other models
     }
 
 }

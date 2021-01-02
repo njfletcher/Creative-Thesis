@@ -89,7 +89,7 @@ public class StockData {
 
         Stock chosenStock1 = YahooFinance.get(tickerName, from1, to1, Interval.DAILY);
         List<HistoricalQuote> stocksList1 = chosenStock1.getHistory();
-        from1.add(Calendar.DAY_OF_YEAR, -3);
+        from1.add(Calendar.DAY_OF_YEAR, -1);
 
         Stock chosenStock1Offset = YahooFinance.get(tickerName, from1, to1, Interval.DAILY);
         List<HistoricalQuote> stocksList1Offset = chosenStock1Offset.getHistory();
