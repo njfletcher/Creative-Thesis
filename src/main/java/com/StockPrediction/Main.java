@@ -14,7 +14,7 @@ import java.util.Scanner;
  */
 
 
-public class Program {
+public class Main {
 
 
     public static void main(String[] args) throws Exception {
@@ -34,7 +34,7 @@ public class Program {
         NewsSentiment news = new NewsSentiment(compName, ticker);
         news.getCompanyInfo();
 
-        NEURAL nn = new NEURAL();
+        Neural nn = new Neural();
         //nn.train();
         //nn.predict();
 

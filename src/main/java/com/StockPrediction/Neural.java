@@ -26,7 +26,7 @@ import java.util.Arrays;
 Much simpler feed forward network using Encog, but gives much better results.
  */
 
-public class NEURAL {
+public class Neural {
 
     static File filename = new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_train.CSV");
     CSVFormat format = new CSVFormat('.' , ',');
