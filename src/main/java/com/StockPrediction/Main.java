@@ -35,13 +35,16 @@ public class Main {
         StockData stockD = new StockData(compName, ticker);
         Neural nn = new Neural();
 
-        if(new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\model.txt").isFile()){
+        boolean train = true;
+
+        if(new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\model.txt").isFile() && train ==false){
             System.out.println("Model exists, using previously trained model to make prediction..");
             stockD.createPredData();
             nn.predict();
         }else{
             System.out.println("Model not found, training new one...");
             stockD.createTrain();
+            stockD.createPredData();
             nn.train();
             nn.predict();
         }

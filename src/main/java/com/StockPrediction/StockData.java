@@ -34,15 +34,10 @@ public class StockData {
         from.add(Calendar.YEAR, -5); //5 years ago
         //amount of items per row: 252 x 4 = 1260
         to.add(Calendar.YEAR,-1);
+        from.add(Calendar.DAY_OF_YEAR, -1);
 
         Stock chosenStock = YahooFinance.get(tickerName, from, to, Interval.DAILY);
         List<HistoricalQuote> stocksList = chosenStock.getHistory();
-
-        //Causes error depending on what the last day was. Say end date was Jan 1st, offset then doesnt work becuase
-        from.add(Calendar.DAY_OF_YEAR, -4);
-
-        Stock chosenStockOffset = YahooFinance.get(tickerName, from, to, Interval.DAILY);
-        List<HistoricalQuote> stocksListOffset = chosenStockOffset.getHistory();
 
         //location of file that will house the input stock data. This uses a placeholder file for now.
         String fileName = "C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_train.CSV";
@@ -54,27 +49,12 @@ public class StockData {
         //printWriter.println(companyName+ "("+ tickerName + ")");
 
 
-        for(int i =0; i<stocksList.size()-1; i++){
+        for(int i =1; i<stocksList.size()-1; i++){
 
             //System.out.println("date: " + stocksList.get(i).getDate().getTime() + "Offset Date: " + stocksListOffset.get(i).getDate().getTime());
-            printWriter.println(stocksList.get(i).getDate().getTime() + "," + calcPercentChange(i, stocksList, stocksListOffset) + "," + stocksList.get(i).getVolume().doubleValue());
+            printWriter.println(stocksList.get(i).getDate().getTime() + "," + percentChang(i, stocksList) + "," + stocksList.get(i).getVolume().doubleValue());
             datesTrain.add(stocksList.get(i).getDate().getTime());
         }
-
-        /*int count = 0;
-        for (HistoricalQuote obj : stocksList ) {
-            //System.out.println(obj.getClose());
-            closings.add(obj.getClose().doubleValue());
-            volume.add(obj.getVolume());
-            dates.add(obj.getDate().getTime());
-            //System.out.println(obj.getDate().getTime().toString());
-            printWriter.println(obj.getClose().floatValue()+ "," + obj.getHigh().floatValue()+ "," + obj.getLow().floatValue() + "," + obj.getVolume());
-            //obj.getDate().getTime() + ","
-            //+ "," + obj.getVolume()
-            System.out.println(obj.getDate().getTime() + "," + obj.getClose().doubleValue() + "," + obj.getVolume() + "," + obj.getHigh()+ "," + obj.getLow());
-            count++;
-        }
-        */
 
         printWriter.close();
     }
@@ -88,14 +68,12 @@ public class StockData {
         Calendar to1 = Calendar.getInstance();
         //Causes error depending on what the last day was. Say end date was Jan 1st, offset then doesnt work becuase wont have off day in its database
         from1.add(Calendar.YEAR, -1);
+        from1.add(Calendar.DAY_OF_YEAR, -1);
 
 
         Stock chosenStock1 = YahooFinance.get(tickerName, from1, to1, Interval.DAILY);
         List<HistoricalQuote> stocksList1 = chosenStock1.getHistory();
-        from1.add(Calendar.DAY_OF_YEAR, -1);
 
-        Stock chosenStock1Offset = YahooFinance.get(tickerName, from1, to1, Interval.DAILY);
-        List<HistoricalQuote> stocksList1Offset = chosenStock1Offset.getHistory();
 
         String fileName1 = "C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_test.CSV";
         FileWriter fileWriter1 = new FileWriter(fileName1);
@@ -104,37 +82,22 @@ public class StockData {
         //This line causes an error with the transform process. Need to find a method to remove it with the transform process.
         //printWriter1.println(companyName+ "("+ tickerName + ")");
 
-        for(int i =0; i<stocksList1.size()-1; i++){
+        for(int i =1; i<stocksList1.size()-1; i++){
 
             //System.out.println("date: " + stocksList1.get(i).getDate().getTime() + "Offset Date: " + stocksList1Offset.get(i).getDate().getTime());
-            printWriter1.println(stocksList1.get(i).getDate().getTime() + "," + calcPercentChange(i, stocksList1, stocksList1Offset) + "," + stocksList1.get(i).getVolume().doubleValue());
+            printWriter1.println(stocksList1.get(i).getDate().getTime() + "," + percentChang(i, stocksList1) + "," + stocksList1.get(i).getVolume().doubleValue());
             datesTest.add(stocksList1.get(i).getDate().getTime());
 
         }
 
-        /*int count1 = 0;
-        for (HistoricalQuote obj : stocksList1 ) {
-            //System.out.println(obj.getClose());
-            closings.add(obj.getClose().doubleValue());
-            volume.add(obj.getVolume());
-            dates.add(obj.getDate().getTime());
-            //System.out.println(obj.getDate().getTime().toString());
-            printWriter1.println(obj.getClose().floatValue()+ "," + obj.getHigh().floatValue()+ "," + obj.getLow().floatValue() + "," + obj.getVolume());
-            System.out.println(obj.getClose().doubleValue() + "," + obj.getVolume() + "," + obj.getHigh()+ "," + obj.getLow());
-            //+ obj.getVolume() + ","
-            //obj.getDate().getTime() + "," +
-
-            count1++;
-           }
-        */
         printWriter1.close();
     }
 
-    //Calculates the daily percent change for a certain stock
-    private double calcPercentChange(int i, List<HistoricalQuote> norm, List<HistoricalQuote> offset){
+    private double percentChang(int i, List<HistoricalQuote> norm){
 
-        return (norm.get(i).getClose().doubleValue()- offset.get(i).getClose().doubleValue()) / offset.get(i).getClose().doubleValue() * 100;
+        return (norm.get(i).getClose().doubleValue()- norm.get(i-1).getClose().doubleValue()) / norm.get(i-1).getClose().doubleValue() * 100;
     }
+
     private double getFundData(){
 
 
