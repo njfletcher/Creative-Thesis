@@ -2,8 +2,11 @@ package com.StockPrediction;
 
 import org.encog.ConsoleStatusReportable;
 import org.encog.Encog;
+import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.ml.MLRegression;
+import org.encog.ml.bayesian.BayesianNetwork;
 import org.encog.ml.data.MLData;
+import org.encog.ml.data.MLDataSet;
 import org.encog.ml.data.versatile.NormalizationHelper;
 import org.encog.ml.data.versatile.VersatileMLDataSet;
 import org.encog.ml.data.versatile.columns.ColumnDefinition;
@@ -13,11 +16,15 @@ import org.encog.ml.data.versatile.sources.VersatileDataSource;
 import org.encog.ml.factory.MLMethodFactory;
 import org.encog.ml.model.EncogModel;
 import org.encog.neural.networks.BasicNetwork;
+import org.encog.neural.pattern.ElmanPattern;
+import org.encog.neural.rbf.RBFNetwork;
 import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.util.arrayutil.VectorWindow;
 import org.encog.util.csv.CSVFormat;
 import org.encog.util.csv.ReadCSV;
 import org.encog.util.obj.SerializeObject;
+import org.encog.util.simple.EncogUtility;
+import org.encog.util.simple.TrainingSetUtil;
 
 import java.io.*;
 import java.util.Arrays;
@@ -46,6 +53,7 @@ public class Neural {
 
         trainData.analyze();
 
+
         trainData.defineInput(columnPerChange);
         trainData.defineInput(columnVol);
         trainData.defineOutput(columnPerChange);
@@ -58,6 +66,7 @@ public class Neural {
 
         trainData.setLeadWindowSize(1);
         trainData.setLagWindowSize(windowSize);
+
 
         model.holdBackValidation(.2,false,1001);
         model.selectTrainingType(trainData);
@@ -87,7 +96,7 @@ public class Neural {
     public void predict() throws IOException, ClassNotFoundException {
 
 
-        BasicNetwork network = (BasicNetwork)EncogDirectoryPersistence.loadObject(new File(baseDir+ "model.EG"));
+        BasicNetwork network = (BasicNetwork) EncogDirectoryPersistence.loadObject(new File(baseDir+ "model.EG"));
         FileInputStream fileIn = new FileInputStream(baseDir + "norm.txt");
         ObjectInputStream in = new ObjectInputStream(fileIn);
         NormalizationHelper normLoad = (NormalizationHelper) in.readObject();
@@ -95,7 +104,7 @@ public class Neural {
         File fileNameTest = new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_test.CSV");
 
 
-        ReadCSV csv = new ReadCSV(fileNameTest, false, format);
+        ReadCSV csvReader = new ReadCSV(fileNameTest, false, format);
 
 
         String[] line = new String[2];
@@ -107,16 +116,16 @@ public class Neural {
         int numWrong = 0;
 
         //&& stopAfter>0
-        while(csv.next() ) {
+        while(csvReader.next() ) {
 
             StringBuilder result = new StringBuilder();
-            line[0] = csv.get(1);
-            line[1] = csv.get(2);
+            line[0] = csvReader.get(1);
+            line[1] = csvReader.get(2);
             normLoad.normalizeInputVector(line, slice, true);
             if (window.isReady()) {
 
                 window.copyWindow(input.getData(), 0);
-                String correct = csv.get(1);
+                String correct = csvReader.get(1);
                 MLData output = network.compute(input);
                 String predicted = normLoad.denormalizeOutputVectorToString(output)[0];
                 result.append(Arrays.toString(line));
@@ -150,9 +159,9 @@ public class Neural {
 
         //Predicts a single timestep into the future. WHat is printed out is what is predicted to happen the next day.
         //Need to double check this uses the correct input window.
-        if(!csv.next()){
-            line[0] = csv.get(1);
-            line[1] = csv.get(2);
+        if(!csvReader.next()){
+            line[0] = csvReader.get(1);
+            line[1] = csvReader.get(2);
             normLoad.normalizeInputVector(line, slice, true);
             window.copyWindow(input.getData(), 0);
             MLData output = network.compute(input);
@@ -168,6 +177,7 @@ public class Neural {
     public void altTrain(){
         //research other models
     }
+
     public void altPrediction(){
         //research other models
     }

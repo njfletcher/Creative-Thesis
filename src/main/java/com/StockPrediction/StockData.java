@@ -16,10 +16,10 @@ public class StockData {
 
     private String tickerName;
     private String companyName;
-    Scanner sc = new Scanner(System.in);
     private List<Double> closings = new ArrayList<Double>();
     private List<Long> volume = new ArrayList<Long>();
-    private List<Date> dates = new ArrayList<Date>();
+    private List<Date> datesTrain = new ArrayList<Date>();
+    private List<Date> datesTest = new ArrayList<Date>();
 
 
     public StockData(String cName, String cTicker) throws IOException {
@@ -38,7 +38,8 @@ public class StockData {
         Stock chosenStock = YahooFinance.get(tickerName, from, to, Interval.DAILY);
         List<HistoricalQuote> stocksList = chosenStock.getHistory();
 
-        from.add(Calendar.DAY_OF_YEAR, -1);
+        //Causes error depending on what the last day was. Say end date was Jan 1st, offset then doesnt work becuase
+        from.add(Calendar.DAY_OF_YEAR, -4);
 
         Stock chosenStockOffset = YahooFinance.get(tickerName, from, to, Interval.DAILY);
         List<HistoricalQuote> stocksListOffset = chosenStockOffset.getHistory();
@@ -55,8 +56,9 @@ public class StockData {
 
         for(int i =0; i<stocksList.size()-1; i++){
 
-            System.out.println("date: " + stocksList.get(i).getDate().getTime() + "Offset Date: " + stocksListOffset.get(i).getDate().getTime());
+            //System.out.println("date: " + stocksList.get(i).getDate().getTime() + "Offset Date: " + stocksListOffset.get(i).getDate().getTime());
             printWriter.println(stocksList.get(i).getDate().getTime() + "," + calcPercentChange(i, stocksList, stocksListOffset) + "," + stocksList.get(i).getVolume().doubleValue());
+            datesTrain.add(stocksList.get(i).getDate().getTime());
         }
 
         /*int count = 0;
@@ -84,6 +86,7 @@ public class StockData {
 
         Calendar from1 = Calendar.getInstance();
         Calendar to1 = Calendar.getInstance();
+        //Causes error depending on what the last day was. Say end date was Jan 1st, offset then doesnt work becuase wont have off day in its database
         from1.add(Calendar.YEAR, -1);
 
 
@@ -103,8 +106,10 @@ public class StockData {
 
         for(int i =0; i<stocksList1.size()-1; i++){
 
-            System.out.println("date: " + stocksList1.get(i).getDate().getTime() + "Offset Date: " + stocksList1Offset.get(i).getDate().getTime());
+            //System.out.println("date: " + stocksList1.get(i).getDate().getTime() + "Offset Date: " + stocksList1Offset.get(i).getDate().getTime());
             printWriter1.println(stocksList1.get(i).getDate().getTime() + "," + calcPercentChange(i, stocksList1, stocksList1Offset) + "," + stocksList1.get(i).getVolume().doubleValue());
+            datesTest.add(stocksList1.get(i).getDate().getTime());
+
         }
 
         /*int count1 = 0;
@@ -129,6 +134,11 @@ public class StockData {
     private double calcPercentChange(int i, List<HistoricalQuote> norm, List<HistoricalQuote> offset){
 
         return (norm.get(i).getClose().doubleValue()- offset.get(i).getClose().doubleValue()) / offset.get(i).getClose().doubleValue() * 100;
+    }
+    private double getFundData(){
+
+
+        return 0.0;
     }
 
 }

@@ -1,7 +1,9 @@
 package com.StockPrediction;
 
 import org.apache.log4j.BasicConfigurator;
+import scala.collection.concurrent.Debug;
 
+import java.io.File;
 import java.util.Scanner;
 
 
@@ -27,16 +29,22 @@ public class Main {
         System.out.println("Enter Company ticker: ");
         String ticker = sc.next();
 
-        StockData stockD = new StockData(compName, ticker);
-        //stockD.createTrain();
-        //stockD.createPredData();
-
         NewsSentiment news = new NewsSentiment(compName, ticker);
         news.getCompanyInfo();
 
+        StockData stockD = new StockData(compName, ticker);
         Neural nn = new Neural();
-        //nn.train();
-        //nn.predict();
+
+        if(new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\model.txt").isFile()){
+            System.out.println("Model exists, using previously trained model to make prediction..");
+            stockD.createPredData();
+            nn.predict();
+        }else{
+            System.out.println("Model not found, training new one...");
+            stockD.createTrain();
+            nn.train();
+            nn.predict();
+        }
 
     }
 }

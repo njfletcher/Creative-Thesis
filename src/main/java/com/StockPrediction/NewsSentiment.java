@@ -5,6 +5,8 @@ import org.jsoup.*;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+
+
 /*
 This class will takes whatever company you are making a prediction on, and grabs some supplemental information about it(sector, industry, etc.)
 In the future, this will be one of the columns for the data. Daily news sentiment.
@@ -24,7 +26,7 @@ String compIndustry;
     }
 
     public  void fetchNews(){
-        //will work on later.
+        
     }
 
     /*relies on webscraping, so may be unreliable in the future.
@@ -44,6 +46,8 @@ String compIndustry;
         compIndustry = resultText.substring(lastInd + 1);
         //System.out.println(compSector + " ; " + compIndustry);
 
+    }
+    public void twitter(){
         
     }
 
