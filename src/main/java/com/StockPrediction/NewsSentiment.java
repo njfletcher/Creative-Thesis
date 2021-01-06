@@ -30,7 +30,7 @@ String compIndustry;
     }
 
     /*relies on webscraping, so may be unreliable in the future.
-    For now it gets the sector of a selected company and the Industry name.
+    For now it gets the  sector of a selected company and the Industry name.
      */
     public void getCompanyInfo() throws IOException, InterruptedException {
         //https://www.tradingview.com/symbols/(TICKER SYMBOL GOES HERE)

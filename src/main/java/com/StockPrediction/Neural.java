@@ -2,11 +2,10 @@ package com.StockPrediction;
 
 import org.encog.ConsoleStatusReportable;
 import org.encog.Encog;
-import org.encog.engine.network.activation.ActivationSigmoid;
+import org.encog.mathutil.error.ErrorCalculation;
+import org.encog.mathutil.error.ErrorCalculationMode;
 import org.encog.ml.MLRegression;
-import org.encog.ml.bayesian.BayesianNetwork;
 import org.encog.ml.data.MLData;
-import org.encog.ml.data.MLDataSet;
 import org.encog.ml.data.versatile.NormalizationHelper;
 import org.encog.ml.data.versatile.VersatileMLDataSet;
 import org.encog.ml.data.versatile.columns.ColumnDefinition;
@@ -16,15 +15,11 @@ import org.encog.ml.data.versatile.sources.VersatileDataSource;
 import org.encog.ml.factory.MLMethodFactory;
 import org.encog.ml.model.EncogModel;
 import org.encog.neural.networks.BasicNetwork;
-import org.encog.neural.pattern.ElmanPattern;
-import org.encog.neural.rbf.RBFNetwork;
 import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.util.arrayutil.VectorWindow;
 import org.encog.util.csv.CSVFormat;
 import org.encog.util.csv.ReadCSV;
 import org.encog.util.obj.SerializeObject;
-import org.encog.util.simple.EncogUtility;
-import org.encog.util.simple.TrainingSetUtil;
 
 import java.io.*;
 import java.util.Arrays;
@@ -40,11 +35,11 @@ public class Neural {
     String modelFilePath = "C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\model.EG";
     String baseDir = "C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\";
 
-    int windowSize = 20;
+    int windowSize = 18;
 
     public void train() throws IOException {
 
-
+        ErrorCalculation.setMode(ErrorCalculationMode.RMS);
         VersatileDataSource dataSource = new CSVDataSource(filename, false, format );
         VersatileMLDataSet trainData = new VersatileMLDataSet(dataSource);
         trainData.getNormHelper().setFormat(format);
@@ -68,10 +63,11 @@ public class Neural {
         trainData.setLagWindowSize(windowSize);
 
 
-        model.holdBackValidation(.2,false,1001);
+        model.holdBackValidation(0.2, false, 1001);
+
         model.selectTrainingType(trainData);
 
-        MLRegression bestMethod = (MLRegression) model.crossvalidate(5,false);
+        MLRegression bestMethod = (MLRegression) model.crossvalidate(5, false);
 
 
        System.out.println("Training Error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
@@ -101,7 +97,8 @@ public class Neural {
         ObjectInputStream in = new ObjectInputStream(fileIn);
         NormalizationHelper normLoad = (NormalizationHelper) in.readObject();
 
-        File fileNameTest = new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_test.CSV");
+
+        File fileNameTest = new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\practiceDoc.CSV");
 
 
         ReadCSV csvReader = new ReadCSV(fileNameTest, false, format);
@@ -114,6 +111,8 @@ public class Neural {
         int stopAfter = 302;
         int numRight =0;
         int numWrong = 0;
+        double magWrong =0;
+        double magRight= 0;
 
         //&& stopAfter>0
         while(csvReader.next() ) {
@@ -144,12 +143,9 @@ public class Neural {
                 else{
                     numWrong++;
                 }
-
             }
             window.add(slice);
             stopAfter--;
-
-
         }
 
         System.out.println("Prediction done! ");

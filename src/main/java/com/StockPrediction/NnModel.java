@@ -52,17 +52,17 @@ for Dl4j neural networks.
  */
     public void train() throws IOException, InterruptedException {
 
-        SequenceRecordReader trainReader = new CSVSequenceRecordReader(1, ",");
+        SequenceRecordReader trainReader = new CSVSequenceRecordReader(0, ",");
         trainReader.initialize(new FileSplit(new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_train.CSV")));
 
         //numPossible labels not used since regression.
         DataSetIterator trainIter = new SequenceRecordReaderDataSetIterator(trainReader, miniBatchSize, -1, 0, true);
 
-        SequenceRecordReader testReader = new CSVSequenceRecordReader(1, ",");
+        SequenceRecordReader testReader = new CSVSequenceRecordReader(0, ",");
         testReader.initialize(new FileSplit(new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_test.CSV")));
         DataSetIterator testIter = new SequenceRecordReaderDataSetIterator(testReader, miniBatchSize, -1, 0, true);
 
-        final DataNormalization dataNormalization = new NormalizerMinMaxScaler();
+        final DataNormalization dataNormalization = new NormalizerMinMaxScaler(-1,1);
         dataNormalization.fitLabel(true);
         dataNormalization.fit(trainIter);
 
@@ -90,12 +90,11 @@ for Dl4j neural networks.
         MultiLayerConfiguration config = new NeuralNetConfiguration.Builder()
                 .miniBatch(true)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .updater(new Adam(.01))
+                .updater(new Adam(.001))
                 .weightInit(WeightInit.XAVIER)
                 .list()
-                .layer(0, new LSTM.Builder().activation(Activation.TANH).nIn(1).nOut(100).build())
-                .layer(1, new LSTM.Builder().activation(Activation.TANH).nOut(150).build())
-                .layer(2, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MSE)
+                .layer(0, new LSTM.Builder().activation(Activation.TANH).nIn(1).nOut(3).build())
+                .layer(1, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MSE)
                         .activation(Activation.TANH)
                         .nOut(1).build())
                 .backpropType(BackpropType.TruncatedBPTT)
@@ -108,9 +107,9 @@ for Dl4j neural networks.
         //http://localhost:9000/train/overview
         model.setListeners(new StatsListener(statsStorage));
 
-        int numEpochs = 250;
+        int numEpochs = 500;
         for (int i = 0; i < numEpochs; i++) {
-            model.fit(trainData);
+            model.fit(trainIter);
 
             log.info("Epoch " + i + " complete. Time series evaluation:");
 
@@ -128,15 +127,17 @@ for Dl4j neural networks.
         }
 
         //revert this
+
         INDArray timeSeriesFeatures = testData.getFeatures();
         INDArray timeSeriesOutput = model.output(timeSeriesFeatures);
         dataNormalization.revertLabels(timeSeriesOutput);
-        long timeSeriesLength = timeSeriesOutput.size(2);        //Size of time dimension
-        INDArray lastTimeStepProbabilities = timeSeriesOutput.get(NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(timeSeriesLength-1));
+        dataNormalization.revert(testData);
+        System.out.println(testData.getLabels());
+        System.out.println(timeSeriesOutput);
 
         //dataNormalization.revertFeatures(lastTimeStepProbabilities);
 
-        System.out.println(lastTimeStepProbabilities);
+
 
         /*INDArray predictedTrain = model.rnnTimeStep(trainData.getFeatures());
         INDArray predictedTest = model.rnnTimeStep(testData.getFeatures());
@@ -165,7 +166,7 @@ for Dl4j neural networks.
         DataSetIterator testIter = new SequenceRecordReaderDataSetIterator(testReader, miniBatchSize, -1, 0, true);
 
 
-        final DataNormalization dataNormalization = new NormalizerStandardize();
+        final DataNormalization dataNormalization = new NormalizerMinMaxScaler();
         dataNormalization.fitLabel(true);
         dataNormalization.fit(testIter);
         testIter.setPreProcessor(dataNormalization);

@@ -22,22 +22,33 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         BasicConfigurator.configure();
+        boolean train;
         Scanner sc = new Scanner(System.in);
 
         System.out.println("Enter Company name: ");
         String compName = sc.next();
         System.out.println("Enter Company ticker: ");
         String ticker = sc.next();
+        System.out.println("Train?(Yes/No)" );
+        String trainAnswer = sc.next().toLowerCase();
+        if(trainAnswer == "yes"){
+            train= true;
+        }else{
+            train = false;
+        }
 
         NewsSentiment news = new NewsSentiment(compName, ticker);
         news.getCompanyInfo();
 
         StockData stockD = new StockData(compName, ticker);
         Neural nn = new Neural();
+        NnModel model = new NnModel();
 
-        boolean train = true;
 
-        if(new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\model.txt").isFile() && train ==false){
+
+        /*train = true;
+        if(train ==false ){
+            //&& new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\model.txt").isFile()
             System.out.println("Model exists, using previously trained model to make prediction..");
             stockD.createPredData();
             nn.predict();
@@ -48,6 +59,8 @@ public class Main {
             nn.train();
             nn.predict();
         }
+
+         */
 
     }
 }

@@ -52,7 +52,8 @@ public class StockData {
         for(int i =1; i<stocksList.size()-1; i++){
 
             //System.out.println("date: " + stocksList.get(i).getDate().getTime() + "Offset Date: " + stocksListOffset.get(i).getDate().getTime());
-            printWriter.println(stocksList.get(i).getDate().getTime() + "," + percentChang(i, stocksList) + "," + stocksList.get(i).getVolume().doubleValue());
+            printWriter.println(percentChang(i, stocksList) + "," + stocksList.get(i).getVolume().doubleValue());
+            //stocksList.get(i).getDate().getTime() + "," +
             datesTrain.add(stocksList.get(i).getDate().getTime());
         }
 
@@ -85,7 +86,8 @@ public class StockData {
         for(int i =1; i<stocksList1.size()-1; i++){
 
             //System.out.println("date: " + stocksList1.get(i).getDate().getTime() + "Offset Date: " + stocksList1Offset.get(i).getDate().getTime());
-            printWriter1.println(stocksList1.get(i).getDate().getTime() + "," + percentChang(i, stocksList1) + "," + stocksList1.get(i).getVolume().doubleValue());
+            printWriter1.println(percentChang(i, stocksList1) + "," + stocksList1.get(i).getVolume().doubleValue());
+            //stocksList1.get(i).getDate().getTime() + "," +
             datesTest.add(stocksList1.get(i).getDate().getTime());
 
         }
