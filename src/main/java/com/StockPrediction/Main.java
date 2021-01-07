@@ -4,6 +4,8 @@ import org.apache.log4j.BasicConfigurator;
 import scala.collection.concurrent.Debug;
 
 import java.io.File;
+import java.time.LocalDate;
+import java.util.Calendar;
 import java.util.Scanner;
 
 
@@ -22,20 +24,21 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         BasicConfigurator.configure();
-        boolean train;
         Scanner sc = new Scanner(System.in);
-
+        boolean train= true;
         System.out.println("Enter Company name: ");
         String compName = sc.next();
         System.out.println("Enter Company ticker: ");
         String ticker = sc.next();
-        System.out.println("Train?(Yes/No)" );
-        String trainAnswer = sc.next().toLowerCase();
-        if(trainAnswer == "yes"){
-            train= true;
+        LocalDate dateTime =LocalDate.now();
+
+        //train model if certain day of the month
+        if(dateTime.getDayOfMonth() == 1){
+            train =true;
         }else{
             train = false;
         }
+
 
         NewsSentiment news = new NewsSentiment(compName, ticker);
         news.getCompanyInfo();
@@ -46,9 +49,7 @@ public class Main {
         stockD.createTrain();
         stockD.createPredData();
 
-
-        train = true;
-        if(train ==false ){
+        if(FileSystemConfig.trainFile.exists() && train == false){
             System.out.println("Model exists, using previously trained model to make prediction..");
             stockD.createPredData();
             nn.predict();
@@ -59,8 +60,6 @@ public class Main {
             nn.train();
             nn.predict();
         }
-
-
 
     }
 }

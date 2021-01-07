@@ -56,18 +56,22 @@ public class Neural {
         trainData.setLeadWindowSize(1);
         trainData.setLagWindowSize(windowSize);
 
-        model.holdBackValidation(0.2, false, 1001);
+        model.holdBackValidation(0.25, false, 1001);
         model.selectTrainingType(trainData);
 
         MLRegression bestMethod = (MLRegression) model.crossvalidate(5, false);
 
-        System.out.println("Training Error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
-        System.out.println("Validation Error: " + model.calculateError(bestMethod, model.getValidationDataset()));
+        //final stats
+        System.out.println("-------------------------------------------------------------------------------");
+        System.out.println("Final Training Error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
+        System.out.println("Final Validation Error: " + model.calculateError(bestMethod, model.getValidationDataset()));
 
         NormalizationHelper norm = trainData.getNormHelper();
         System.out.println(norm.toString());
-        System.out.println("Final Model: " + bestMethod);
+        System.out.println("Best model: " + bestMethod);
+        System.out.println("-------------------------------------------------------------------------------");
 
+        //save to files to be used with predictions
         EncogDirectoryPersistence.saveObject(new File(FileSystemConfig.baseDir + "model.EG"), bestMethod);
         SerializeObject.save(new File(FileSystemConfig.baseDir + "norm.txt"), norm);
 
@@ -76,8 +80,8 @@ public class Neural {
     }
 
     /*
-    This method can make a single prediction. It makes a prediction foreach step in a dataset.
-    This method also evaluates how many predictions which the network makes on a dataset are correct, meaning if they
+    This method can make a single prediction. It also makes a prediction foreach step in a dataset, while
+    evaluating how many predictions which the network makes on a dataset are correct, meaning if they
     matched the direction of the actual timesteps.
      */
     public void predict() throws IOException, ClassNotFoundException {
@@ -89,36 +93,32 @@ public class Neural {
         NormalizationHelper normLoad = (NormalizationHelper) in.readObject();
 
 
-        File fileNameTest = new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_test.CSV");
+        ReadCSV csvReader = new ReadCSV(FileSystemConfig.testFile, false, FileSystemConfig.format);
 
-
-        ReadCSV csvReader = new ReadCSV(fileNameTest, false, FileSystemConfig.format);
-
-
-        String[] line = new String[2];
+        String[] currentPair = new String[2];
         double[] slice = new double[2];
         VectorWindow window = new VectorWindow(windowSize+1);
         MLData input = normLoad.allocateInputVector(windowSize+1);
-        int stopAfter = 302;
         int numRight =0;
         int numWrong = 0;
         double magWrong =0;
         double magRight= 0;
 
-        //&& stopAfter>0
         while(csvReader.next() ) {
 
             StringBuilder result = new StringBuilder();
-            line[0] = csvReader.get(1);
-            line[1] = csvReader.get(2);
-            normLoad.normalizeInputVector(line, slice, true);
+            currentPair[0] = csvReader.get(1);
+            currentPair[1] = csvReader.get(2);
+            normLoad.normalizeInputVector(currentPair, slice, true);
+
+            //creates data window, then makes prediction on it.
             if (window.isReady()) {
 
                 window.copyWindow(input.getData(), 0);
                 String correct = csvReader.get(1);
                 MLData output = network.compute(input);
                 String predicted = normLoad.denormalizeOutputVectorToString(output)[0];
-                result.append(Arrays.toString(line));
+                result.append(Arrays.toString(currentPair));
                 result.append(" −> predicted: ");
                 result.append(predicted);
                 result.append("(correct: ");
@@ -136,7 +136,7 @@ public class Neural {
                 }
             }
             window.add(slice);
-            stopAfter--;
+
         }
 
         System.out.println("Prediction done! ");
@@ -147,13 +147,13 @@ public class Neural {
         //Predicts a single timestep into the future. WHat is printed out is what is predicted to happen the next day.
         //Need to double check this uses the correct input window.
         if(!csvReader.next()){
-            line[0] = csvReader.get(1);
-            line[1] = csvReader.get(2);
-            normLoad.normalizeInputVector(line, slice, true);
+            currentPair[0] = csvReader.get(1);
+            currentPair[1] = csvReader.get(2);
+            normLoad.normalizeInputVector(currentPair, slice, true);
             window.copyWindow(input.getData(), 0);
             MLData output = network.compute(input);
             String predicted = normLoad.denormalizeOutputVectorToString(output)[0];
-            System.out.println(predicted);
+            System.out.println("Next close Prediction: " + predicted);
         }
 
         Encog.getInstance().shutdown();
