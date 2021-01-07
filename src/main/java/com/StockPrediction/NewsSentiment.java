@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.util.Scanner;
 import org.jsoup.*;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 
@@ -19,6 +20,7 @@ public class NewsSentiment {
     private String tickerName;
     private String compSector;
     private String compIndustry;
+    private String companyDescription;
 
     public NewsSentiment(String cName, String cTicker){
         companyName = cName;
@@ -37,7 +39,8 @@ public class NewsSentiment {
         Document doc = Jsoup.connect("https://www.tradingview.com/symbols/" + tickerName.toUpperCase()).get();
         Elements e = doc.getElementsByClass("tv-widget-description__company-info");
         String resultText = e.first().text();
-        System.out.println(resultText);
+        Elements description = doc.getElementsByClass("tv-widget-description__text");
+        companyDescription = description.text();
 
         int firstInd = resultText.indexOf(":");
         int nextInd = resultText.indexOf("Industry");
@@ -47,7 +50,16 @@ public class NewsSentiment {
         //System.out.println(compSector + " ; " + compIndustry);
 
     }
-    public void twitter(){
+    public void displayInfo(){
+
+        System.out.println("--------------------------------------------------------");
+        System.out.println(companyName.toUpperCase() + "(" + tickerName.toUpperCase()+ ")");
+        System.out.println(" ");
+        System.out.println("Sector: " + compSector + " " + "Industry: " + compIndustry);
+        System.out.println(" ");
+        System.out.println(companyDescription);
+        System.out.println("--------------------------------------------------------");
+
         
     }
 

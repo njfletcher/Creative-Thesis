@@ -42,6 +42,7 @@ public class Main {
 
         NewsSentiment news = new NewsSentiment(compName, ticker);
         news.getCompanyInfo();
+        news.displayInfo();
 
         StockData stockD = new StockData(compName, ticker);
         Neural nn = new Neural();
