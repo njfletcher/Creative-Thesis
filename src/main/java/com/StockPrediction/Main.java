@@ -42,13 +42,13 @@ public class Main {
 
         StockData stockD = new StockData(compName, ticker);
         Neural nn = new Neural();
-        NnModel model = new NnModel();
+
+        stockD.createTrain();
+        stockD.createPredData();
 
 
-
-        /*train = true;
+        train = true;
         if(train ==false ){
-            //&& new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\model.txt").isFile()
             System.out.println("Model exists, using previously trained model to make prediction..");
             stockD.createPredData();
             nn.predict();
@@ -60,7 +60,7 @@ public class Main {
             nn.predict();
         }
 
-         */
+
 
     }
 }

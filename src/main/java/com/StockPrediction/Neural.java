@@ -30,24 +30,19 @@ Much simpler feed forward network using Encog, but gives much better results.
 
 public class Neural {
 
-    static File filename = new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_train.CSV");
-    CSVFormat format = new CSVFormat('.' , ',');
-    String modelFilePath = "C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\model.EG";
-    String baseDir = "C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\";
 
     int windowSize = 18;
 
     public void train() throws IOException {
 
         ErrorCalculation.setMode(ErrorCalculationMode.RMS);
-        VersatileDataSource dataSource = new CSVDataSource(filename, false, format );
+        VersatileDataSource dataSource = new CSVDataSource(FileSystemConfig.trainFile, false, FileSystemConfig.format );
         VersatileMLDataSet trainData = new VersatileMLDataSet(dataSource);
-        trainData.getNormHelper().setFormat(format);
+        trainData.getNormHelper().setFormat(FileSystemConfig.format);
         ColumnDefinition columnPerChange = trainData.defineSourceColumn("%Change", 1, ColumnType.continuous);
         ColumnDefinition columnVol = trainData.defineSourceColumn("Volume", 2, ColumnType.continuous);
 
         trainData.analyze();
-
 
         trainData.defineInput(columnPerChange);
         trainData.defineInput(columnVol);
@@ -58,50 +53,46 @@ public class Neural {
         model.setReport(new ConsoleStatusReportable());
         trainData.normalize();
 
-
         trainData.setLeadWindowSize(1);
         trainData.setLagWindowSize(windowSize);
 
-
         model.holdBackValidation(0.2, false, 1001);
-
         model.selectTrainingType(trainData);
 
         MLRegression bestMethod = (MLRegression) model.crossvalidate(5, false);
 
-
-       System.out.println("Training Error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
-       System.out.println("Validation Error: " + model.calculateError(bestMethod, model.getValidationDataset()));
+        System.out.println("Training Error: " + model.calculateError(bestMethod, model.getTrainingDataset()));
+        System.out.println("Validation Error: " + model.calculateError(bestMethod, model.getValidationDataset()));
 
         NormalizationHelper norm = trainData.getNormHelper();
         System.out.println(norm.toString());
         System.out.println("Final Model: " + bestMethod);
 
-        EncogDirectoryPersistence.saveObject(new File(baseDir + "model.EG"), bestMethod);
-        SerializeObject.save(new File(baseDir + "norm.txt"), norm);
+        EncogDirectoryPersistence.saveObject(new File(FileSystemConfig.baseDir + "model.EG"), bestMethod);
+        SerializeObject.save(new File(FileSystemConfig.baseDir + "norm.txt"), norm);
 
         Encog.getInstance().shutdown();
 
     }
 
     /*
-    This method does not make a single prediction. It makes a prediction foreach step in a dataset.
+    This method can make a single prediction. It makes a prediction foreach step in a dataset.
     This method also evaluates how many predictions which the network makes on a dataset are correct, meaning if they
     matched the direction of the actual timesteps.
      */
     public void predict() throws IOException, ClassNotFoundException {
 
 
-        BasicNetwork network = (BasicNetwork) EncogDirectoryPersistence.loadObject(new File(baseDir+ "model.EG"));
-        FileInputStream fileIn = new FileInputStream(baseDir + "norm.txt");
+        BasicNetwork network = (BasicNetwork) EncogDirectoryPersistence.loadObject(new File(FileSystemConfig.baseDir+ "model.EG"));
+        FileInputStream fileIn = new FileInputStream(FileSystemConfig.baseDir + "norm.txt");
         ObjectInputStream in = new ObjectInputStream(fileIn);
         NormalizationHelper normLoad = (NormalizationHelper) in.readObject();
 
 
-        File fileNameTest = new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\practiceDoc.CSV");
+        File fileNameTest = new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_test.CSV");
 
 
-        ReadCSV csvReader = new ReadCSV(fileNameTest, false, format);
+        ReadCSV csvReader = new ReadCSV(fileNameTest, false, FileSystemConfig.format);
 
 
         String[] line = new String[2];

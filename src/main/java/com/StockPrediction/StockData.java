@@ -40,20 +40,19 @@ public class StockData {
         List<HistoricalQuote> stocksList = chosenStock.getHistory();
 
         //location of file that will house the input stock data. This uses a placeholder file for now.
-        String fileName = "C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_train.CSV";
-        FileWriter fileWriter = new FileWriter(fileName);
+
+        FileWriter fileWriter = new FileWriter(FileSystemConfig.trainFile);
         PrintWriter printWriter = new PrintWriter(fileWriter);
 
 
         //This line causes an error with the transform process. Need to find a method to remove it with the transform process.
         //printWriter.println(companyName+ "("+ tickerName + ")");
 
-
+        //printWriter.println("Date,Change,Volume");
         for(int i =1; i<stocksList.size()-1; i++){
 
             //System.out.println("date: " + stocksList.get(i).getDate().getTime() + "Offset Date: " + stocksListOffset.get(i).getDate().getTime());
-            printWriter.println(percentChang(i, stocksList) + "," + stocksList.get(i).getVolume().doubleValue());
-            //stocksList.get(i).getDate().getTime() + "," +
+            printWriter.println(stocksList.get(i).getDate().getTime() + "," + percentChang(i, stocksList) + "," + stocksList.get(i).getVolume().doubleValue());
             datesTrain.add(stocksList.get(i).getDate().getTime());
         }
 
@@ -75,19 +74,17 @@ public class StockData {
         Stock chosenStock1 = YahooFinance.get(tickerName, from1, to1, Interval.DAILY);
         List<HistoricalQuote> stocksList1 = chosenStock1.getHistory();
 
-
-        String fileName1 = "C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_test.CSV";
-        FileWriter fileWriter1 = new FileWriter(fileName1);
+        FileWriter fileWriter1 = new FileWriter(FileSystemConfig.testFile);
         PrintWriter printWriter1 = new PrintWriter(fileWriter1);
 
         //This line causes an error with the transform process. Need to find a method to remove it with the transform process.
         //printWriter1.println(companyName+ "("+ tickerName + ")");
-
+        //printWriter1.println("Date,Change,Volume");
         for(int i =1; i<stocksList1.size()-1; i++){
 
             //System.out.println("date: " + stocksList1.get(i).getDate().getTime() + "Offset Date: " + stocksList1Offset.get(i).getDate().getTime());
-            printWriter1.println(percentChang(i, stocksList1) + "," + stocksList1.get(i).getVolume().doubleValue());
-            //stocksList1.get(i).getDate().getTime() + "," +
+            printWriter1.println(stocksList1.get(i).getDate().getTime() + "," + percentChang(i, stocksList1) + "," + stocksList1.get(i).getVolume().doubleValue());
+
             datesTest.add(stocksList1.get(i).getDate().getTime());
 
         }
@@ -98,12 +95,6 @@ public class StockData {
     private double percentChang(int i, List<HistoricalQuote> norm){
 
         return (norm.get(i).getClose().doubleValue()- norm.get(i-1).getClose().doubleValue()) / norm.get(i-1).getClose().doubleValue() * 100;
-    }
-
-    private double getFundData(){
-
-
-        return 0.0;
     }
 
 }
