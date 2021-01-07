@@ -31,25 +31,17 @@ import java.io.File;
 import java.io.IOException;
 
 
-
-public class NnModel {
-
-    private File outputPath;
-    int labelIndex = 0;
-    int miniBatchSize = 50;
-    private static final Logger log = LoggerFactory.getLogger(NnModel.class);
-
-    SequenceRecordReader tpReader1;
-
-
-    public NnModel() {
-        //do later
-    }
-
 /*uses SequenceRecordReaders to create DataSetIterators for both the train and test sets, which are used as inputs
 for Dl4j neural networks.
 -This network does not give good results, use Encog instead.
  */
+public class NnModel {
+
+    private File outputPath;
+    private int labelIndex = 0;
+    private int miniBatchSize = 50;
+    private static final Logger log = LoggerFactory.getLogger(NnModel.class);
+
     public void train() throws IOException, InterruptedException {
 
         SequenceRecordReader trainReader = new CSVSequenceRecordReader(0, ",");

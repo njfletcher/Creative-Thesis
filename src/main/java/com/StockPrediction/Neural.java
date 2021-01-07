@@ -31,7 +31,7 @@ Much simpler feed forward network using Encog, but gives much better results.
 public class Neural {
 
 
-    int windowSize = 18;
+    private int windowSize = 18;
 
     public void train() throws IOException {
 

@@ -15,10 +15,10 @@ In the future, this will be one of the columns for the data. Daily news sentimen
 
 public class NewsSentiment {
 
-String companyName;
-String tickerName;
-String compSector;
-String compIndustry;
+    private String companyName;
+    private String tickerName;
+    private String compSector;
+    private String compIndustry;
 
     public NewsSentiment(String cName, String cTicker){
         companyName = cName;

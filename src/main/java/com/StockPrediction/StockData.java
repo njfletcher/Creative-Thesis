@@ -10,7 +10,9 @@ import yahoofinance.YahooFinance;
 import yahoofinance.histquotes.HistoricalQuote;
 import yahoofinance.histquotes.Interval;
 
-
+/*
+    This class uses YahooFinance api to create custom datasets which are used for training, testing, and predicting.
+ */
 
 public class StockData {
 
@@ -47,8 +49,8 @@ public class StockData {
 
         //This line causes an error with the transform process. Need to find a method to remove it with the transform process.
         //printWriter.println(companyName+ "("+ tickerName + ")");
-
         //printWriter.println("Date,Change,Volume");
+
         for(int i =1; i<stocksList.size()-1; i++){
 
             //System.out.println("date: " + stocksList.get(i).getDate().getTime() + "Offset Date: " + stocksListOffset.get(i).getDate().getTime());
@@ -80,6 +82,7 @@ public class StockData {
         //This line causes an error with the transform process. Need to find a method to remove it with the transform process.
         //printWriter1.println(companyName+ "("+ tickerName + ")");
         //printWriter1.println("Date,Change,Volume");
+
         for(int i =1; i<stocksList1.size()-1; i++){
 
             //System.out.println("date: " + stocksList1.get(i).getDate().getTime() + "Offset Date: " + stocksList1Offset.get(i).getDate().getTime());

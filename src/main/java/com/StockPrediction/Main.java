@@ -8,11 +8,11 @@ import java.util.Scanner;
 
 
 
-/* Made by Nicholas Fletcher; Start Date: Oct 10, 2020
+/* Made by Nicholas Fletcher
 ---------------------------------------------------------------------
- This program uses a Neural Network , to predict the closing price of a selected stock over
- a certain time period: either daily or weekly.
- It is trained using a large dataset of multiple stocks, all of which have the same variables involved: volume, closing price, and news sentiment.
+ This program uses a Neural Network to predict the movement of a selected stock over a daily period.
+ It is trained using a large time series dataset of a stock, which has two variables involved: %change and volume.
+ In the future news sentiment index will be a third variable
  */
 
 
