@@ -24,21 +24,23 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         BasicConfigurator.configure();
-        Scanner sc = new Scanner(System.in);
         boolean train= true;
+
+        Scanner sc = new Scanner(System.in);
+
         System.out.println("Enter Company name: ");
         String compName = sc.next();
+
         System.out.println("Enter Company ticker: ");
         String ticker = sc.next();
-        LocalDate dateTime =LocalDate.now();
 
+        LocalDate dateTime =LocalDate.now();
         //train model if certain day of the month
-        if(dateTime.getDayOfMonth() == 1){
+        if(dateTime.getDayOfMonth() == 6){
             train =true;
         }else{
             train = false;
         }
-
 
         NewsSentiment news = new NewsSentiment(compName, ticker);
         news.getCompanyInfo();
@@ -47,8 +49,6 @@ public class Main {
         StockData stockD = new StockData(compName, ticker);
         Neural nn = new Neural();
 
-        stockD.createTrain();
-        stockD.createPredData();
 
         if(FileSystemConfig.trainFile.exists() && train == false){
             System.out.println("Model exists, using previously trained model to make prediction..");
