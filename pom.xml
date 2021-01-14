@@ -129,6 +129,12 @@
             <artifactId>encog-core</artifactId>
             <version>3.4</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.github.neuroph/neuroph-core -->
+        <dependency>
+            <groupId>com.github.neuroph</groupId>
+            <artifactId>neuroph-core</artifactId>
+            <version>2.98</version>
+        </dependency>
 
     </dependencies>
     <properties>

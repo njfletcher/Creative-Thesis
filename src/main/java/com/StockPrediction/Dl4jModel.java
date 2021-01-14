@@ -22,7 +22,6 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
-import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.learning.config.*;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
@@ -35,12 +34,12 @@ import java.io.IOException;
 for Dl4j neural networks.
 -This network does not give good results, use Encog instead.
  */
-public class NnModel {
+public class Dl4jModel {
 
     private File outputPath;
     private int labelIndex = 0;
     private int miniBatchSize = 50;
-    private static final Logger log = LoggerFactory.getLogger(NnModel.class);
+    private static final Logger log = LoggerFactory.getLogger(Dl4jModel.class);
 
     public void train() throws IOException, InterruptedException {
 
