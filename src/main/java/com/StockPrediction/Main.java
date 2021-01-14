@@ -1,11 +1,8 @@
 package com.StockPrediction;
 
 import org.apache.log4j.BasicConfigurator;
-import scala.collection.concurrent.Debug;
 
-import java.io.File;
 import java.time.LocalDate;
-import java.util.Calendar;
 import java.util.Scanner;
 
 
@@ -47,7 +44,7 @@ public class Main {
         news.displayInfo();
 
         StockData stockD = new StockData(compName, ticker);
-        Neural nn = new Neural();
+        EncogImplementation nn = new EncogImplementation();
 
 
         if(FileSystemConfig.trainFile.exists() && train == false){

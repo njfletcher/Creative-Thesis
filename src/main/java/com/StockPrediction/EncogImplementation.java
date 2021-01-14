@@ -28,7 +28,7 @@ import java.util.Arrays;
 Much simpler feed forward network using Encog, but gives much better results.
  */
 
-public class Neural {
+public class EncogImplementation {
 
 
     private int windowSize = 18;
@@ -47,7 +47,7 @@ public class Neural {
         trainData.defineInput(columnPerChange);
         trainData.defineInput(columnVol);
         trainData.defineOutput(columnPerChange);
-        EncogModel model = new EncogModel(trainData);
+        org.encog.ml.model.EncogModel model = new org.encog.ml.model.EncogModel(trainData);
         model.selectMethod(trainData, MLMethodFactory.TYPE_FEEDFORWARD);
 
         model.setReport(new ConsoleStatusReportable());
