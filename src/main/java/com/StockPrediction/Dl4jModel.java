@@ -5,6 +5,8 @@ import io.vertx.core.logging.LoggerFactory;
 import org.datavec.api.records.reader.SequenceRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
 import org.datavec.api.split.FileSplit;
+import org.datavec.api.split.NumberedFileInputSplit;
+import org.datavec.api.transform.transform.doubletransform.MinMaxNormalizer;
 import org.deeplearning4j.core.storage.StatsStorage;
 import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
@@ -15,6 +17,10 @@ import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.model.stats.StatsListener;
 import org.deeplearning4j.ui.model.storage.InMemoryStatsStorage;
 import org.deeplearning4j.util.ModelSerializer;
+import org.jfree.data.general.Dataset;
+import org.knowm.xchart.QuickChart;
+import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.XYChart;
 import org.nd4j.evaluation.regression.RegressionEvaluation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.deeplearning4j.nn.weights.WeightInit;
@@ -22,12 +28,13 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
+import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.learning.config.*;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import java.io.File;
-import java.io.IOException;
+
+import java.io.*;
 
 
 /*uses SequenceRecordReaders to create DataSetIterators for both the train and test sets, which are used as inputs
@@ -41,19 +48,22 @@ public class Dl4jModel {
     private int miniBatchSize = 50;
     private static final Logger log = LoggerFactory.getLogger(Dl4jModel.class);
 
+
     public void train() throws IOException, InterruptedException {
 
         SequenceRecordReader trainReader = new CSVSequenceRecordReader(0, ",");
-        trainReader.initialize(new FileSplit(new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_train.CSV")));
+        trainReader.initialize(new FileSplit(FileSystemConfig.trainFile));
+        //trainReader.initialize(new NumberedFileInputSplit(FileSystemConfig.numberedTrainFile + "%d.CSV", 0,4));
+
 
         //numPossible labels not used since regression.
         DataSetIterator trainIter = new SequenceRecordReaderDataSetIterator(trainReader, miniBatchSize, -1, 0, true);
 
         SequenceRecordReader testReader = new CSVSequenceRecordReader(0, ",");
-        testReader.initialize(new FileSplit(new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_test.CSV")));
+        testReader.initialize(new FileSplit(FileSystemConfig.testFile));
         DataSetIterator testIter = new SequenceRecordReaderDataSetIterator(testReader, miniBatchSize, -1, 0, true);
 
-        final DataNormalization dataNormalization = new NormalizerMinMaxScaler(-1,1);
+        DataNormalization dataNormalization = new NormalizerStandardize();
         dataNormalization.fitLabel(true);
         dataNormalization.fit(trainIter);
 
@@ -84,10 +94,10 @@ public class Dl4jModel {
                 .updater(new Adam(.001))
                 .weightInit(WeightInit.XAVIER)
                 .list()
-                .layer(0, new LSTM.Builder().activation(Activation.TANH).nIn(1).nOut(3).build())
+                .layer(0, new LSTM.Builder().activation(Activation.TANH).nIn(1).nOut(10).build())
                 .layer(1, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MSE)
                         .activation(Activation.TANH)
-                        .nOut(1).build())
+                        .nIn(10).nOut(1).build())
                 .backpropType(BackpropType.TruncatedBPTT)
                 .tBPTTLength(100)
                 .build();
@@ -98,9 +108,9 @@ public class Dl4jModel {
         //http://localhost:9000/train/overview
         model.setListeners(new StatsListener(statsStorage));
 
-        int numEpochs = 500;
+        int numEpochs = 50;
         for (int i = 0; i < numEpochs; i++) {
-            model.fit(trainIter);
+            model.fit(trainData);
 
             log.info("Epoch " + i + " complete. Time series evaluation:");
 
@@ -115,19 +125,17 @@ public class Dl4jModel {
 
             //Just do sout here since the logger will shift the shift the columns of the stats
             System.out.println(evaluation.stats());
+
         }
 
         //revert this
 
-        INDArray timeSeriesFeatures = testData.getFeatures();
+        INDArray timeSeriesFeatures = trainData.getFeatures();
         INDArray timeSeriesOutput = model.output(timeSeriesFeatures);
         dataNormalization.revertLabels(timeSeriesOutput);
-        dataNormalization.revert(testData);
-        System.out.println(testData.getLabels());
+        dataNormalization.revert(trainData);
+        System.out.println(trainData.getLabels());
         System.out.println(timeSeriesOutput);
-
-        //dataNormalization.revertFeatures(lastTimeStepProbabilities);
-
 
 
         /*INDArray predictedTrain = model.rnnTimeStep(trainData.getFeatures());
@@ -143,12 +151,18 @@ public class Dl4jModel {
         System.out.println("PredictedTest: " + predictedTest);
 
          */
+
+        compareResults(timeSeriesOutput, trainData);
         ModelSerializer.writeModel(model, new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\model.txt"),true );
+        FileOutputStream fos = new FileOutputStream(new File(FileSystemConfig.normFile));
+        ObjectOutputStream oos = new ObjectOutputStream(fos);
+        oos.writeObject(dataNormalization);
+        oos.close();
     }
 
 
     //makes prediction using test dataset.
-    public void makePrediction() throws IOException, InterruptedException {
+    public void makePrediction() throws IOException, InterruptedException, ClassNotFoundException {
 
         MultiLayerNetwork net2 = MultiLayerNetwork.load(new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\model.txt"), true);
 
@@ -157,20 +171,67 @@ public class Dl4jModel {
         DataSetIterator testIter = new SequenceRecordReaderDataSetIterator(testReader, miniBatchSize, -1, 0, true);
 
 
-        final DataNormalization dataNormalization = new NormalizerMinMaxScaler();
-        dataNormalization.fitLabel(true);
-        dataNormalization.fit(testIter);
-        testIter.setPreProcessor(dataNormalization);
+
+        FileInputStream fi = new FileInputStream(new File(FileSystemConfig.normFile));
+        ObjectInputStream oi = new ObjectInputStream(fi);
+
+        NormalizerStandardize standardize = (NormalizerStandardize) oi.readObject();
+
+
+
+        testIter.setPreProcessor(standardize);
 
         DataSet testData = testIter.next();
 
+
+        INDArray timeSeriesFeatures1 = testData.getFeatures();
+        INDArray timeSeriesOutput1 = net2.output(timeSeriesFeatures1);
+        standardize.revertLabels(timeSeriesOutput1);
+        standardize.revert(testData);
+        System.out.println(testData.getLabels());
+        System.out.println(timeSeriesOutput1);
+
         INDArray timeSeriesFeatures = testData.getFeatures();
         INDArray timeSeriesOutput = net2.output(timeSeriesFeatures);
-        dataNormalization.revertLabels(timeSeriesOutput);
+        standardize.revertLabels(timeSeriesOutput);
         long timeSeriesLength = timeSeriesOutput.size(2);        //Size of time dimension
         INDArray lastTimeStepProbabilities = timeSeriesOutput.get(NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(timeSeriesLength-1));
 
-        System.out.println(lastTimeStepProbabilities);
+        compareResults(timeSeriesOutput1, testData);
+
+        System.out.println("Prediction for next day: " + lastTimeStepProbabilities);
+
+    }
+
+    public void compareResults(INDArray predictedArray, DataSet dataset){
+        int count =0;
+
+        double[] timesteps = new double[(int)predictedArray.size(2)];
+        for(int i =0; i < (int)predictedArray.size(2); i++){
+            timesteps[i] = (double)i;
+        }
+
+        double[] predicted = new double[(int)predictedArray.size(2)];
+        double[] actual = new double[(int)predictedArray.size(2)];
+
+        for(int i =0; i<predictedArray.size(2);i++){
+
+            System.out.println(predictedArray.get(NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(i)).getDouble() + ", " + dataset.getLabels().get(NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(i)).getDouble());
+            if(Math.signum(predictedArray.get(NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(i)).getDouble()) == Math.signum(dataset.getLabels().get(NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(i)).getDouble())){
+                count++;
+            }
+            predicted[i] = predictedArray.get(NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(i)).getDouble();
+            actual[i] = dataset.getLabels().get(NDArrayIndex.point(0), NDArrayIndex.all(), NDArrayIndex.point(i)).getDouble();
+
+        }
+        System.out.println(" ");
+        System.out.println(count);
+        System.out.println("total: " + predictedArray.size(2));
+        XYChart chart = QuickChart.getChart("Daily percent change", "time-steps", "%change", "y(x)", timesteps, predicted);
+        chart.addSeries("actual", timesteps, actual);
+
+        // Show it
+        new SwingWrapper(chart).displayChart();
 
     }
 
