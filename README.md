@@ -10,3 +10,5 @@ Neural network frameworks used:
 Datasources:
 - YahooFinanceAPI
   - https://github.com/sstrickx/yahoofinance-api
+  
+  This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
