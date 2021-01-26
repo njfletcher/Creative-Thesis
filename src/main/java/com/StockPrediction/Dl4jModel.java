@@ -4,6 +4,7 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.datavec.api.records.reader.SequenceRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
+import org.datavec.api.records.reader.impl.transform.TransformProcessRecordReader;
 import org.datavec.api.split.FileSplit;
 import org.datavec.api.split.NumberedFileInputSplit;
 import org.datavec.api.transform.transform.doubletransform.MinMaxNormalizer;
@@ -13,6 +14,7 @@ import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.layers.*;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.model.stats.StatsListener;
 import org.deeplearning4j.ui.model.storage.InMemoryStatsStorage;
@@ -49,36 +51,40 @@ public class Dl4jModel {
     private static final Logger log = LoggerFactory.getLogger(Dl4jModel.class);
 
 
-    public void train() throws IOException, InterruptedException {
+    public void train() throws Exception {
+
 
         SequenceRecordReader trainReader = new CSVSequenceRecordReader(0, ",");
-        trainReader.initialize(new FileSplit(FileSystemConfig.trainFile));
-        //trainReader.initialize(new NumberedFileInputSplit(FileSystemConfig.numberedTrainFile + "%d.CSV", 0,4));
-
+        trainReader.initialize(new FileSplit(new File("Processedtrain.CSV")));
 
         //numPossible labels not used since regression.
         DataSetIterator trainIter = new SequenceRecordReaderDataSetIterator(trainReader, miniBatchSize, -1, 0, true);
 
-        SequenceRecordReader testReader = new CSVSequenceRecordReader(0, ",");
+
+        /*SequenceRecordReader testReader = new CSVSequenceRecordReader(0, ",");
         testReader.initialize(new FileSplit(FileSystemConfig.testFile));
         DataSetIterator testIter = new SequenceRecordReaderDataSetIterator(testReader, miniBatchSize, -1, 0, true);
 
-        DataNormalization dataNormalization = new NormalizerStandardize();
+         */
+
+        /*DataNormalization dataNormalization = new NormalizerMinMaxScaler(0,1);
         dataNormalization.fitLabel(true);
         dataNormalization.fit(trainIter);
 
         testIter.setPreProcessor(dataNormalization);
         trainIter.setPreProcessor(dataNormalization);
 
+         */
+
         DataSet trainData = trainIter.next();
-        DataSet testData = testIter.next();
+        //DataSet testData = testIter.next();
 
         trainIter.reset();
-        testIter.reset();
+        //testIter.reset();
 
         System.out.println(trainData.sample(1));
         System.out.println(" ");
-        System.out.println(testData.sample(1));
+        //System.out.println(testData.sample(1));
 
         //Initialize the user interface backend
         UIServer uiServer = UIServer.getInstance();
@@ -91,7 +97,7 @@ public class Dl4jModel {
         MultiLayerConfiguration config = new NeuralNetConfiguration.Builder()
                 .miniBatch(true)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .updater(new Adam(.001))
+                .updater(new Adam(.01))
                 .weightInit(WeightInit.XAVIER)
                 .list()
                 .layer(0, new LSTM.Builder().activation(Activation.TANH).nIn(1).nOut(10).build())
@@ -105,59 +111,51 @@ public class Dl4jModel {
         MultiLayerNetwork model = new MultiLayerNetwork(config);
         model.init();
 
+        model.setListeners(new ScoreIterationListener(10));
+
         //http://localhost:9000/train/overview
-        model.setListeners(new StatsListener(statsStorage));
+        //model.setListeners(new StatsListener(statsStorage));
 
         int numEpochs = 50;
-        for (int i = 0; i < numEpochs; i++) {
-            model.fit(trainData);
+        model.fit(trainIter, numEpochs);
+        /*for (int i = 0; i < numEpochs; i++) {
+            model.fit(trainIter);
 
             log.info("Epoch " + i + " complete. Time series evaluation:");
 
             //Run regression evaluation on our single column input
             RegressionEvaluation evaluation = new RegressionEvaluation(1);
-            INDArray features = testData.getFeatures();
+            INDArray features = trainData.getFeatures();
 
-            INDArray lables = testData.getLabels();
-            INDArray predicted = model.output(testData.getFeatures());
+            INDArray lables = trainData.getLabels();
+            INDArray predicted = model.output(trainData.getFeatures());
 
             evaluation.evalTimeSeries(lables, predicted);
 
-            //Just do sout here since the logger will shift the shift the columns of the stats
             System.out.println(evaluation.stats());
-
+            trainIter.reset();
         }
+
+         */
+
+
 
         //revert this
 
         INDArray timeSeriesFeatures = trainData.getFeatures();
         INDArray timeSeriesOutput = model.output(timeSeriesFeatures);
-        dataNormalization.revertLabels(timeSeriesOutput);
-        dataNormalization.revert(trainData);
         System.out.println(trainData.getLabels());
         System.out.println(timeSeriesOutput);
 
-
-        /*INDArray predictedTrain = model.rnnTimeStep(trainData.getFeatures());
-        INDArray predictedTest = model.rnnTimeStep(testData.getFeatures());
-        dataNormalization.revert(trainData);
-        dataNormalization.revert(testData);
-        dataNormalization.revertLabels(predictedTest);
-        dataNormalization.revertLabels(predictedTrain);
-        System.out.println("RealTrain: " + trainData.getLabels());
-        System.out.println("PredictedTrain: " + predictedTrain);
-        System.out.println("---------------------------------------------------------------------------------");
-        System.out.println("RealTest: " + testData.getLabels());
-        System.out.println("PredictedTest: " + predictedTest);
-
-         */
-
         compareResults(timeSeriesOutput, trainData);
-        ModelSerializer.writeModel(model, new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\model.txt"),true );
+
+        /*ModelSerializer.writeModel(model, new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\model.txt"),true );
         FileOutputStream fos = new FileOutputStream(new File(FileSystemConfig.normFile));
         ObjectOutputStream oos = new ObjectOutputStream(fos);
         oos.writeObject(dataNormalization);
         oos.close();
+
+         */
     }
 
 
@@ -170,12 +168,10 @@ public class Dl4jModel {
         testReader.initialize(new FileSplit(new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_test.CSV")));
         DataSetIterator testIter = new SequenceRecordReaderDataSetIterator(testReader, miniBatchSize, -1, 0, true);
 
-
-
         FileInputStream fi = new FileInputStream(new File(FileSystemConfig.normFile));
         ObjectInputStream oi = new ObjectInputStream(fi);
 
-        NormalizerStandardize standardize = (NormalizerStandardize) oi.readObject();
+        NormalizerMinMaxScaler standardize = (NormalizerMinMaxScaler) oi.readObject();
 
 
 

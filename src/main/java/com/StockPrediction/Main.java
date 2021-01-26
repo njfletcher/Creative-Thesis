@@ -1,10 +1,8 @@
 package com.StockPrediction;
 
 import org.apache.log4j.BasicConfigurator;
-import scala.reflect.io.File;
 
-import java.nio.file.Files;
-import java.time.LocalDate;
+import java.io.File;
 import java.util.Scanner;
 
 
@@ -77,21 +75,22 @@ public class Main {
         news.getCompanyInfo();
         news.displayInfo();
 
+        news.getData();
+
         StockData stockD = new StockData(compName, ticker);
-        /*String[] trainCompanies = {"AAPL", "GOOGL", "FB", "AMZN", "NFLX"};
 
-        for(int i =0; i<=4; i++){
-            stockD.createTrain(new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\stockReports_train_"+ i + ".CSV"), trainCompanies[i]);
-        }
 
-         */
+
         stockD.createTrain(FileSystemConfig.trainFile, ticker);
 
         stockD.createPredData();
 
         Dl4jModel model = new Dl4jModel();
         model.train();
-        model.makePrediction();
+        //model.makePrediction();
+
+        Transform transform = new Transform();
+        transform.analyze(new File(""));
 
 
 
