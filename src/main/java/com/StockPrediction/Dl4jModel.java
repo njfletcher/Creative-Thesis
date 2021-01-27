@@ -39,10 +39,7 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import java.io.*;
 
 
-/*uses SequenceRecordReaders to create DataSetIterators for both the train and test sets, which are used as inputs
-for Dl4j neural networks.
--This network does not give good results, use Encog instead.
- */
+
 public class Dl4jModel {
 
     private File outputPath;
@@ -115,7 +112,7 @@ public class Dl4jModel {
 
         model.addListeners(new ScoreIterationListener(10));
 
-        http://localhost:9000/train/overview
+
         model.addListeners(new StatsListener(statsStorage));
 
         int numEpochs = 200;
