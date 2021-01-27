@@ -1,8 +1,13 @@
 package com.StockPrediction;
 
+import com.clearspring.analytics.util.Pair;
 import org.apache.log4j.BasicConfigurator;
+import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.nd4j.common.io.ClassPathResource;
+import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.io.File;
+import java.util.List;
 import java.util.Scanner;
 
 
@@ -88,15 +93,27 @@ public class Main {
         Transform transform = new Transform();
         transform.analyze(new File(""));
 
-        Dl4jModel model = new Dl4jModel();
-        model.train();
-        //model.makePrediction();
+        String file = "files\\Processedtrain.CSV";
+        String symbol = "GOOG"; // stock name
+        int batchSize = 64; // mini-batch size
+        double splitRatio = 0.9; // 90% for training, 10% for testing
+        int epochs = 100; // training epochs
 
 
+        PriceCategory category = PriceCategory.CHANGE; // CLOSE: predict close price
+        StockIterator iterator = new StockIterator(file, symbol, batchSize, 22, splitRatio, category);
+
+        List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
 
 
+        MultiLayerNetwork net = NetworkModel.buildNetwork(iterator.inputColumns(), iterator.totalOutcomes());
 
 
+        for (int i = 0; i < epochs; i++) {
+            while (iterator.hasNext()) net.fit(iterator.next()); // fit model using mini-batch data
+            iterator.reset(); // reset iterator
+            net.rnnClearPreviousState(); // clear previous state
+        }
 
     }
 
