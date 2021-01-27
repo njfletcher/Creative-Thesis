@@ -52,8 +52,8 @@ public class Transform {
 
         TransformProcess tp = new TransformProcess.Builder(schema)
                 .removeColumns("date")
-                .normalize("sentiment", Normalize.Log2Mean,analysis)
-                .normalize("%change", Normalize.Standardize, analysis)
+                //.normalize("sentiment", Normalize.Standardize,analysis)
+                //.normalize("%change", Normalize.Standardize, analysis)
                 .build();
 
         File inputFile = new File(FileSystemConfig.baseDir, "stockReports_train.CSV");

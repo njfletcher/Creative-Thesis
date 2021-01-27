@@ -34,7 +34,7 @@ public class NewsSentiment {
     private String compSector;
     private String compIndustry;
     private String companyDescription;
-    private String apiKey = "049eb1f6b5a4e93ba48ceaf7042a26da";
+
 
     public NewsSentiment(String cName, String cTicker){
         companyName = cName;
@@ -77,7 +77,7 @@ public class NewsSentiment {
 
     public void getData() throws IOException {
 
-        String url = "https://api.stlouisfed.org/fred/series/observations?series_id=USEPUINDXD&api_key=" + apiKey;
+        String url = "https://api.stlouisfed.org/fred/series/observations?series_id=USEPUINDXD&api_key=" + System.getenv("API_KEY");
         URL urlObj = new URL(url);
         HttpURLConnection connection = (HttpURLConnection) urlObj.openConnection();
 

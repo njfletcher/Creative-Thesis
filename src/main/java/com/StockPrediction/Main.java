@@ -85,12 +85,14 @@ public class Main {
 
         stockD.createPredData();
 
+        Transform transform = new Transform();
+        transform.analyze(new File(""));
+
         Dl4jModel model = new Dl4jModel();
         model.train();
         //model.makePrediction();
 
-        Transform transform = new Transform();
-        transform.analyze(new File(""));
+
 
 
 

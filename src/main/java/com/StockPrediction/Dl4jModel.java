@@ -47,7 +47,7 @@ public class Dl4jModel {
 
     private File outputPath;
     private int labelIndex = 0;
-    private int miniBatchSize = 50;
+    private int miniBatchSize = 32;
     private static final Logger log = LoggerFactory.getLogger(Dl4jModel.class);
 
 
@@ -67,14 +67,16 @@ public class Dl4jModel {
 
          */
 
-        /*DataNormalization dataNormalization = new NormalizerMinMaxScaler(0,1);
+
+
+        DataNormalization dataNormalization = new NormalizerMinMaxScaler(-1,1);
         dataNormalization.fitLabel(true);
         dataNormalization.fit(trainIter);
 
-        testIter.setPreProcessor(dataNormalization);
+        //testIter.setPreProcessor(dataNormalization);
         trainIter.setPreProcessor(dataNormalization);
 
-         */
+
 
         DataSet trainData = trainIter.next();
         //DataSet testData = testIter.next();
@@ -97,7 +99,7 @@ public class Dl4jModel {
         MultiLayerConfiguration config = new NeuralNetConfiguration.Builder()
                 .miniBatch(true)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .updater(new Adam(.01))
+                .updater(new Adam(.00001))
                 .weightInit(WeightInit.XAVIER)
                 .list()
                 .layer(0, new LSTM.Builder().activation(Activation.TANH).nIn(1).nOut(10).build())
@@ -111,41 +113,19 @@ public class Dl4jModel {
         MultiLayerNetwork model = new MultiLayerNetwork(config);
         model.init();
 
-        model.setListeners(new ScoreIterationListener(10));
+        model.addListeners(new ScoreIterationListener(10));
 
-        //http://localhost:9000/train/overview
-        //model.setListeners(new StatsListener(statsStorage));
+        http://localhost:9000/train/overview
+        model.addListeners(new StatsListener(statsStorage));
 
-        int numEpochs = 50;
+        int numEpochs = 200;
         model.fit(trainIter, numEpochs);
-        /*for (int i = 0; i < numEpochs; i++) {
-            model.fit(trainIter);
-
-            log.info("Epoch " + i + " complete. Time series evaluation:");
-
-            //Run regression evaluation on our single column input
-            RegressionEvaluation evaluation = new RegressionEvaluation(1);
-            INDArray features = trainData.getFeatures();
-
-            INDArray lables = trainData.getLabels();
-            INDArray predicted = model.output(trainData.getFeatures());
-
-            evaluation.evalTimeSeries(lables, predicted);
-
-            System.out.println(evaluation.stats());
-            trainIter.reset();
-        }
-
-         */
-
-
-
-        //revert this
 
         INDArray timeSeriesFeatures = trainData.getFeatures();
         INDArray timeSeriesOutput = model.output(timeSeriesFeatures);
-        System.out.println(trainData.getLabels());
-        System.out.println(timeSeriesOutput);
+
+        dataNormalization.revertLabels(timeSeriesOutput);
+        dataNormalization.revert(trainData);
 
         compareResults(timeSeriesOutput, trainData);
 
@@ -157,7 +137,6 @@ public class Dl4jModel {
 
          */
     }
-
 
     //makes prediction using test dataset.
     public void makePrediction() throws IOException, InterruptedException, ClassNotFoundException {
