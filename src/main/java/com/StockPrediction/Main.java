@@ -77,7 +77,7 @@ public class Main {
 
         news.getData();
 
-        StockData stockD = new StockData(compName, ticker);
+        FileCreator stockD = new FileCreator(compName, ticker);
 
 
 
@@ -89,7 +89,7 @@ public class Main {
         transform.analyze(new File(""));
 
         Dl4jModel model = new Dl4jModel();
-        //model.train();
+        model.train();
         //model.makePrediction();
 
 

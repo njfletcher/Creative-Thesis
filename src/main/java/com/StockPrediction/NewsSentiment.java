@@ -90,6 +90,9 @@ public class NewsSentiment {
         System.out.println("Response Code : " + responseCode);
         new FileOutputStream(new File(FileSystemConfig.fedFile)).close();
 
+        FileWriter fileWriter = new FileWriter(FileSystemConfig.fedFile);
+        PrintWriter printWriter = new PrintWriter(fileWriter);
+
         if (responseCode == HttpURLConnection.HTTP_OK) {
             BufferedReader inputReader = new BufferedReader(
                     new InputStreamReader(connection.getInputStream()));

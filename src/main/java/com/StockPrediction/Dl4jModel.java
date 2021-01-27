@@ -93,21 +93,44 @@ public class Dl4jModel {
         uiServer.attach(statsStorage);
         //Then add the StatsListener to collect this information from the network, as it trains
 
-        MultiLayerConfiguration config = new NeuralNetConfiguration.Builder()
-                .miniBatch(true)
+        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+                .seed(1234)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .updater(new Adam(.00001))
                 .weightInit(WeightInit.XAVIER)
+                .updater(new RmsProp(.001))
+                .l2(1e-4)
                 .list()
-                .layer(0, new LSTM.Builder().activation(Activation.TANH).nIn(1).nOut(10).build())
-                .layer(1, new RnnOutputLayer.Builder(LossFunctions.LossFunction.MSE)
+                .layer(0, new GravesLSTM.Builder()
+                        .nIn(1)
+                        .nOut(256)
                         .activation(Activation.TANH)
-                        .nIn(10).nOut(1).build())
+                        .gateActivationFunction(Activation.HARDSIGMOID)
+                        .dropOut(.2)
+                        .build())
+                .layer(1, new GravesLSTM.Builder()
+                        .nIn(256)
+                        .nOut(256)
+                        .activation(Activation.TANH)
+                        .gateActivationFunction(Activation.HARDSIGMOID)
+                        .dropOut(.2)
+                        .build())
+                .layer(2, new DenseLayer.Builder()
+                        .nIn(256)
+                        .nOut(32)
+                        .activation(Activation.RELU)
+                        .build())
+                .layer(3, new RnnOutputLayer.Builder()
+                        .nIn(32)
+                        .nOut(1)
+                        .activation(Activation.IDENTITY)
+                        .lossFunction(LossFunctions.LossFunction.MSE)
+                        .build())
                 .backpropType(BackpropType.TruncatedBPTT)
-                .tBPTTLength(100)
+                .tBPTTForwardLength(22)
+                .tBPTTBackwardLength(22)
                 .build();
 
-        MultiLayerNetwork model = new MultiLayerNetwork(config);
+        MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
 
         model.addListeners(new ScoreIterationListener(10));
@@ -115,7 +138,7 @@ public class Dl4jModel {
 
         model.addListeners(new StatsListener(statsStorage));
 
-        int numEpochs = 200;
+        int numEpochs = 50;
         model.fit(trainIter, numEpochs);
 
         INDArray timeSeriesFeatures = trainData.getFeatures();

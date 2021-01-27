@@ -11,11 +11,11 @@ public class FileSystemConfig {
     The serialized models and normalizers are also stored in my folder for use on new data.
      */
     public static String baseDir = "C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\";
-    public static File trainFile = new File(baseDir + "stockReports_train.CSV");
+    public static File trainFile = new File("files\\stockReports_train.CSV");
     public static CSVFormat format = new CSVFormat('.' , ',');
-    public static File testFile = new File(baseDir + "stockReports_test.CSV");
+    public static File testFile = new File("files\\stockReports_test.CSV");
     public static String normFile = baseDir + "norm.TXT";
-    public static String fedFile = baseDir + "FED.XML";
+    public static String fedFile = "files\\FED.XML";
     public static String analysisFile = "files\\Analysis.HTML";
 
 }

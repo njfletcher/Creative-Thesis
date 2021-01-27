@@ -27,7 +27,7 @@ import javax.xml.parsers.ParserConfigurationException;
     This class uses YahooFinance api to create custom datasets which are used for training, testing, and predicting.
  */
 
-public class StockData {
+public class FileCreator {
 
     private String tickerName;
     private String companyName;
@@ -39,7 +39,7 @@ public class StockData {
     Document document = reader.read(new File(FileSystemConfig.fedFile));
 
 
-    public StockData(String cName, String cTicker) throws IOException, DocumentException {
+    public FileCreator(String cName, String cTicker) throws IOException, DocumentException {
         companyName = cName;
         tickerName = cTicker;
     }
