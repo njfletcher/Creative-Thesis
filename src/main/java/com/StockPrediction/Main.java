@@ -89,7 +89,7 @@ public class Main {
         transform.analyze(new File(""));
 
         Dl4jModel model = new Dl4jModel();
-        model.train();
+        //model.train();
         //model.makePrediction();
 
 

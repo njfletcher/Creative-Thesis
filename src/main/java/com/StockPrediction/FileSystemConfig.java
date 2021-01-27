@@ -16,6 +16,6 @@ public class FileSystemConfig {
     public static File testFile = new File(baseDir + "stockReports_test.CSV");
     public static String normFile = baseDir + "norm.TXT";
     public static String fedFile = baseDir + "FED.XML";
-    public static String analysisFile = baseDir + "Analysis.HTML";
+    public static String analysisFile = "files\\Analysis.HTML";
 
 }

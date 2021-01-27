@@ -57,7 +57,7 @@ public class Transform {
                 .build();
 
         File inputFile = new File(FileSystemConfig.baseDir, "stockReports_train.CSV");
-        File outputFile = new File("Processed" + "train" + ".CSV");
+        File outputFile = new File("files\\Processed" + "train" + ".CSV");
         if(outputFile.exists()){
             outputFile.delete();
         }

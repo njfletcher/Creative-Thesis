@@ -52,7 +52,7 @@ public class Dl4jModel {
 
 
         SequenceRecordReader trainReader = new CSVSequenceRecordReader(0, ",");
-        trainReader.initialize(new FileSplit(new File("Processedtrain.CSV")));
+        trainReader.initialize(new FileSplit(new File("files\\Processedtrain.CSV")));
 
         //numPossible labels not used since regression.
         DataSetIterator trainIter = new SequenceRecordReaderDataSetIterator(trainReader, miniBatchSize, -1, 0, true);
