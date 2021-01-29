@@ -132,6 +132,10 @@
             var html_histdiv_sentiment = div_histdiv_sentiment.html();
             createHistogram(jQuery.parseJSON(html_histdiv_sentiment)["RenderableComponentHistogram"], histdiv, 700, 400);
 
+            var div_histdiv_volume = $('#histdiv_volume');
+            var html_histdiv_volume = div_histdiv_volume.html();
+            createHistogram(jQuery.parseJSON(html_histdiv_volume)["RenderableComponentHistogram"], histdiv, 700, 400);
+
 
     }
 
@@ -438,7 +442,7 @@
     <tr>
         <td style="width:15px; height:35px; padding: 4px 15px;">
         <td>Data Analysis</td>
-        <td style="text-align:right">2021-01-27 20:23:09 +00:00</td>
+        <td style="text-align:right">2021-01-28 22:51:15 +00:00</td>
         <td style="width:15px; height:35px; padding: 4px 15px;">
     </tr>
     </tbody>
@@ -510,7 +514,22 @@
     "marginTop" : 60,
     "title" : "sentiment",
     "upperBounds" : [ 21.779666666666664, 32.63933333333333, 43.498999999999995, 54.358666666666664, 65.21833333333333, 76.07799999999999, 86.93766666666666, 97.79733333333333, 108.657, 119.51666666666667, 130.37633333333332, 141.23599999999996, 152.09566666666663, 162.9553333333333, 173.81499999999997, 184.67466666666664, 195.5343333333333, 206.39399999999998, 217.25366666666665, 228.11333333333332, 238.97299999999996, 249.83266666666663, 260.6923333333333, 271.55199999999996, 282.41166666666663, 293.2713333333333, 304.131, 314.99066666666664, 325.8503333333333, 336.71 ],
-    "yvalues" : [ 9.0, 31.0, 74.0, 86.0, 138.0, 113.0, 102.0, 113.0, 76.0, 67.0, 41.0, 39.0, 35.0, 21.0, 15.0, 9.0, 5.0, 3.0, 3.0, 6.0, 5.0, 3.0, 2.0, 3.0, 4.0, 0.0, 0.0, 2.0, 0.0, 1.0 ]
+    "yvalues" : [ 9.0, 32.0, 73.0, 86.0, 138.0, 113.0, 102.0, 113.0, 76.0, 67.0, 41.0, 39.0, 35.0, 21.0, 15.0, 9.0, 5.0, 3.0, 3.0, 6.0, 5.0, 3.0, 2.0, 3.0, 4.0, 0.0, 0.0, 2.0, 0.0, 1.0 ]
+  }
+}
+</div>
+<div id="histdiv_volume" style="display:none">
+{
+  "RenderableComponentHistogram" : {
+    "componentType" : "histogram",
+    "lowerBounds" : [ 347500.0, 547520.0, 747540.0, 947560.0, 1147580.0, 1347600.0, 1547620.0, 1747640.0, 1947660.0, 2147680.0, 2347700.0, 2547720.0, 2747740.0, 2947760.0, 3147780.0, 3347800.0, 3547820.0, 3747840.0, 3947860.0, 4147880.0, 4347900.0, 4547920.0, 4747940.0, 4947960.0, 5147980.0, 5348000.0, 5548020.0, 5748040.0, 5948060.0, 6148080.0 ],
+    "marginBottom" : 60,
+    "marginLeft" : 90,
+    "marginRight" : 20,
+    "marginTop" : 60,
+    "title" : "volume",
+    "upperBounds" : [ 547520.0, 747540.0, 947560.0, 1147580.0, 1347600.0, 1547620.0, 1747640.0, 1947660.0, 2147680.0, 2347700.0, 2547720.0, 2747740.0, 2947760.0, 3147780.0, 3347800.0, 3547820.0, 3747840.0, 3947860.0, 4147880.0, 4347900.0, 4547920.0, 4747940.0, 4947960.0, 5147980.0, 5348000.0, 5548020.0, 5748040.0, 5948060.0, 6148080.0, 6348100.0 ],
+    "yvalues" : [ 2.0, 14.0, 70.0, 156.0, 215.0, 162.0, 111.0, 76.0, 59.0, 24.0, 33.0, 20.0, 7.0, 13.0, 10.0, 7.0, 3.0, 4.0, 0.0, 3.0, 2.0, 3.0, 3.0, 3.0, 2.0, 0.0, 0.0, 0.0, 1.0, 3.0 ]
   }
 }
 </div>
@@ -527,7 +546,7 @@
     "padLeftPx" : 4,
     "padRightPx" : 4,
     "padTopPx" : 0,
-    "table" : [ [ "date", "String", "StringAnalysis(minLen=10, maxLen=10, meanLen=10.0, sampleStDevLen=0.0, sampleVarianceLen=0.0, count=1006)" ], [ "%change", "Double", "DoubleAnalysis(min=-7.696607541784377, max=10.448542515142131, mean=0.08152017457422973, sampleStDev=1.399942027570864, sampleVariance=1.9598376805592217, countZero=0, countNegative=464, countPositive=542, countMinValue=1, countMaxValue=1, count=1006,  quantiles=[0.001 : -6.89232759016218, 0.01 : -4.663869287947107, 0.1 : -1.37047984032607, 0.5 : 0.0766185109888814, 0.9 : 1.5466701382596075, 0.99 : 3.621462764837492, 0.999 : 8.43947185990884])" ], [ "sentiment", "Double", "DoubleAnalysis(min=10.92, max=336.71, mean=89.69442345924453, sampleStDev=45.62024118946195, sampleVariance=2081.206406184681, countZero=0, countNegative=0, countPositive=1006, countMinValue=1, countMaxValue=1, count=1006,  quantiles=[0.001 : 13.08568, 0.01 : 22.282600000000002, 0.1 : 41.76825, 0.5 : 80.77387464387465, 0.9 : 145.07093333333333, 0.99 : 263.7930666666662, 0.999 : 324.6368400000007])" ] ],
+    "table" : [ [ "date", "String", "StringAnalysis(minLen=10, maxLen=10, meanLen=10.0, sampleStDevLen=0.0, sampleVarianceLen=0.0, count=1006)" ], [ "%change", "Double", "DoubleAnalysis(min=-7.696607541784377, max=10.448542515142131, mean=0.08111581582870356, sampleStDev=1.4005533690554959, sampleVariance=1.9615497395726997, countZero=0, countNegative=464, countPositive=542, countMinValue=1, countMaxValue=1, count=1006,  quantiles=[0.001 : -6.89232759016218, 0.01 : -4.663869287947107, 0.1 : -1.3729758935207335, 0.5 : 0.07743224183135833, 0.9 : 1.5466701382596075, 0.99 : 3.621462764837492, 0.999 : 8.43947185990884])" ], [ "sentiment", "Double", "DoubleAnalysis(min=10.92, max=336.71, mean=89.67776341948301, sampleStDev=45.6418242172495, sampleVariance=2083.176117878303, countZero=0, countNegative=0, countPositive=1006, countMinValue=1, countMaxValue=1, count=1006,  quantiles=[0.001 : 13.08568, 0.01 : 22.11936, 0.1 : 41.770500000000006, 0.5 : 80.78660200668897, 0.9 : 145.07093333333333, 0.99 : 263.7930666666662, 0.999 : 324.6368400000007])" ], [ "volume", "Double", "DoubleAnalysis(min=347500.0, max=6348100.0, mean=1603115.0099403583, sampleStDev=749654.5018756562, sampleVariance=5.619818721824382E11, countZero=0, countNegative=0, countPositive=1006, countMinValue=1, countMaxValue=1, count=1006,  quantiles=[0.001 : 443387.0, 0.01 : 720580.5333333334, 0.1 : 963337.7777777778, 0.5 : 1407247.4074074076, 0.9 : 2446615.8333333335, 0.99 : 4829476.999999998, 0.999 : 6276703.400000004])" ] ],
     "title" : null
   }
 }

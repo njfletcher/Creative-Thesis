@@ -7,6 +7,7 @@ import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.GravesLSTM;
+import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
@@ -33,17 +34,17 @@ public class NetworkModel {
                 .seed(1234)
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
                 .weightInit(WeightInit.XAVIER)
-                .updater(new RmsProp(.001))
+                .updater(new RmsProp(.005))
                 .l2(1e-4)
                 .list()
-                .layer(0, new GravesLSTM.Builder()
-                        .nIn(1)
+                .layer(0, new LSTM.Builder()
+                        .nIn(nIn)
                         .nOut(256)
                         .activation(Activation.TANH)
                         .gateActivationFunction(Activation.HARDSIGMOID)
                         .dropOut(.2)
                         .build())
-                .layer(1, new GravesLSTM.Builder()
+                .layer(1, new LSTM.Builder()
                         .nIn(256)
                         .nOut(256)
                         .activation(Activation.TANH)
@@ -57,7 +58,7 @@ public class NetworkModel {
                         .build())
                 .layer(3, new RnnOutputLayer.Builder()
                         .nIn(32)
-                        .nOut(1)
+                        .nOut(nOut)
                         .activation(Activation.IDENTITY)
                         .lossFunction(LossFunctions.LossFunction.MSE)
                         .build())
@@ -69,7 +70,7 @@ public class NetworkModel {
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
 
-        model.addListeners(new ScoreIterationListener(10));
+        model.addListeners(new ScoreIterationListener(100));
 
 
         model.addListeners(new StatsListener(statsStorage));

@@ -40,7 +40,7 @@ public class Transform {
         // the String to label conversion. Define schema and transform:
         Schema schema = new Schema.Builder()
                 .addColumnString("date")
-                .addColumnsDouble("%change", "sentiment")
+                .addColumnsDouble("%change", "sentiment", "volume")
                 .build();
 
         RecordReader trainReader = new CSVRecordReader();
@@ -80,6 +80,10 @@ public class Transform {
         List<List<Writable>> processedData = LocalTransformExecutor.execute(originalData, tp);
         rw.writeBatch(processedData);
         rw.close();
+
+
+
+
 
 
 

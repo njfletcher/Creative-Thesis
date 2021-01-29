@@ -2,12 +2,15 @@ package com.StockPrediction;
 
 import au.com.bytecode.opencsv.CSVReader;
 import avro.shaded.com.google.common.collect.ImmutableMap;
-import com.clearspring.analytics.util.Pair;
+
+
+import org.apache.commons.math3.util.Pair;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -19,7 +22,7 @@ public class StockIterator implements DataSetIterator {
     /** category and its index */
     private final Map<PriceCategory, Integer> featureMapIndex = ImmutableMap.of(PriceCategory.CHANGE, 0, PriceCategory.SENTIMENT, 1);
 
-    private final int VECTOR_SIZE = 5; // number of features for a stock data
+    private final int VECTOR_SIZE = 2; // number of features for a stock data
     private int miniBatchSize; // mini-batch size
     private int exampleLength = 22; // default 22, say, 22 working days per month
     private int predictLength = 1; // default 1, say, one day ahead prediction
@@ -83,14 +86,13 @@ public class StockIterator implements DataSetIterator {
             StockObservation nextData;
             for (int i = startIdx; i < endIdx; i++) {
                 int c = i - startIdx;
-                input.putScalar(new int[] {index, 0, c}, (curData.getChange() - minArray[0]) / (maxArray[0] - minArray[0]));
+                input.putScalar(new int[] {index, 0, c}, (curData.getChange() - minArray[1]) / (maxArray[1] - minArray[1]));
                 input.putScalar(new int[] {index, 1, c}, (curData.getSentiment() - minArray[1]) / (maxArray[1] - minArray[1]));
 
                 nextData = train.get(i + 1);
                 if (category.equals(PriceCategory.ALL)) {
                     label.putScalar(new int[] {index, 0, c}, (nextData.getChange()- minArray[1]) / (maxArray[1] - minArray[1]));
                     label.putScalar(new int[] {index, 1, c}, (nextData.getSentiment()- minArray[1]) / (maxArray[1] - minArray[1]));
-
                 } else {
                     label.putScalar(new int[]{index, 0, c}, feedLabel(nextData));
                 }
@@ -177,6 +179,7 @@ public class StockIterator implements DataSetIterator {
         return test;
     }
 
+    //CHECKED: loads into Stockarraylist correctly
     private List<StockObservation> readStockDataFromFile (String filename, String symbol) {
         List<StockObservation> stockDataList = new ArrayList<>();
         try {
@@ -186,19 +189,19 @@ public class StockIterator implements DataSetIterator {
             }
             List<String[]> list = new CSVReader(new FileReader(filename)).readAll(); // load all elements in a list
             for (String[] arr : list) {
-                if (!arr[1].equals(symbol)) continue;
                 double[] nums = new double[VECTOR_SIZE];
-                for (int i = 0; i < arr.length - 2; i++) {
-                    nums[i] = Double.valueOf(arr[i + 2]);
+                for (int i = 0; i < arr.length-1; i++) {
+                    nums[i] = Double.valueOf(arr[i+1]);
                     if (nums[i] > maxArray[i]) maxArray[i] = nums[i];
                     if (nums[i] < minArray[i]) minArray[i] = nums[i];
                 }
-                stockDataList.add(new StockObservation(nums[0], nums[1]));
+                stockDataList.add(new StockObservation(arr[0],nums[0],nums[1]));
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return stockDataList;
     }
 }

@@ -110,7 +110,8 @@ public class FileCreator {
         for (int i = 1; i < stocksList1.size() - 1; i++) {
 
             //System.out.println("date: " + stocksList1.get(i).getDate().getTime() + "Offset Date: " + stocksList1Offset.get(i).getDate().getTime());
-            printWriter1.println(f.format(stocksList1.get(i).getDate().getTime()) + "," + percentChang(i, stocksList1)+ "," + parseXML(FileSystemConfig.fedFile, f.format(stocksList1.get(i).getDate().getTime()), document));
+            printWriter1.println(f.format(stocksList1.get(i).getDate().getTime()) + "," +percentChang(i, stocksList1)+ "," + parseXML(FileSystemConfig.fedFile, f.format(stocksList1.get(i).getDate().getTime()), document));
+            //percentChang(i, stocksList1)
             //f.format(stocksList1.get(i).getDate().getTime())+ ","
             // + "," + stocksList1.get(i).getVolume().doubleValue()
             datesTest.add(f.format(stocksList1.get(i).getDate().getTime()));

@@ -1,14 +1,22 @@
 package com.StockPrediction;
 
-import com.clearspring.analytics.util.Pair;
+
+
+import org.apache.commons.math3.util.Pair;
 import org.apache.log4j.BasicConfigurator;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+
+import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.common.io.ClassPathResource;
+
 import org.nd4j.linalg.api.ndarray.INDArray;
+
+
 
 import java.io.File;
 import java.util.List;
 import java.util.Scanner;
+
 
 
 
@@ -22,49 +30,10 @@ import java.util.Scanner;
 
 public class Main {
 
+    private static int exampleLength = 22;
+
 
     public static void main(String[] args) throws Exception {
-
-        /*BasicConfigurator.configure();
-        boolean train= true;
-
-        Scanner sc = new Scanner(System.in);
-
-        System.out.println("Enter Company name: ");
-        String compName = sc.next();
-
-        System.out.println("Enter Company ticker: ");
-        String ticker = sc.next();
-
-        LocalDate dateTime =LocalDate.now();
-        //train model if certain day of the month
-        if(dateTime.getDayOfMonth() == 6){
-            train =true;
-        }else{
-            train = false;
-        }
-
-        NewsSentiment news = new NewsSentiment(compName, ticker);
-        news.getCompanyInfo();
-        news.displayInfo();
-
-        StockData stockD = new StockData(compName, ticker);
-        EncogImplementation nn = new EncogImplementation();
-
-
-        if(FileSystemConfig.trainFile.exists() && train == false){
-            System.out.println("Model exists, using previously trained model to make prediction..");
-            stockD.createPredData();
-            nn.predict();
-        }else{
-            System.out.println("Model not found, training new one...");
-            stockD.createTrain();
-            stockD.createPredData();
-            nn.train();
-            nn.predict();
-        }
-
-         */
 
         BasicConfigurator.configure();
 
@@ -84,16 +53,14 @@ public class Main {
 
         FileCreator stockD = new FileCreator(compName, ticker);
 
-
-
         stockD.createTrain(FileSystemConfig.trainFile, ticker);
 
         stockD.createPredData();
 
-        Transform transform = new Transform();
-        transform.analyze(new File(""));
+        //Transform transform = new Transform();
+        //transform.analyze(new File(""));
 
-        String file = "files\\Processedtrain.CSV";
+        String file = "files\\stockReports_train.CSV";
         String symbol = "GOOG"; // stock name
         int batchSize = 64; // mini-batch size
         double splitRatio = 0.9; // 90% for training, 10% for testing
@@ -108,14 +75,44 @@ public class Main {
 
         MultiLayerNetwork net = NetworkModel.buildNetwork(iterator.inputColumns(), iterator.totalOutcomes());
 
-
         for (int i = 0; i < epochs; i++) {
             while (iterator.hasNext()) net.fit(iterator.next()); // fit model using mini-batch data
             iterator.reset(); // reset iterator
             net.rnnClearPreviousState(); // clear previous state
+
+
+        }
+
+
+        File locationToSave = new File("files\\model".concat(String.valueOf(category)).concat(".zip"));
+        // saveUpdater: i.e., the state for Momentum, RMSProp, Adagrad etc. Save this to train your network more in the future
+        ModelSerializer.writeModel(net, locationToSave, true);
+
+
+        net = ModelSerializer.restoreMultiLayerNetwork(locationToSave);
+
+        double max = iterator.getMaxNum(category);
+        double min = iterator.getMinNum(category);
+        predictPriceOneAhead(net, test, max, min, category);
+
+
+    }
+
+    private static void predictPriceOneAhead (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, double max, double min, PriceCategory category) {
+        double[] predicts = new double[testData.size()];
+        double[] actuals = new double[testData.size()];
+        for (int i = 0; i < testData.size(); i++) {
+            predicts[i] = net.rnnTimeStep(testData.get(i).getKey()).getDouble(exampleLength - 1) * (max - min) + min;
+            actuals[i] = testData.get(i).getValue().getDouble(0);
+        }
+
+        for (int i = 0; i < predicts.length; i++){
+            System.out.println(predicts[i] + "," + actuals[i]);
         }
 
     }
+
+
 
 
 }

@@ -5,11 +5,13 @@ public class StockObservation {
 
     private double perChange;
     private double sentiment;
+    private String date;
 
     public  StockObservation(){};
 
-    public  StockObservation(double percentChange, double sentiment){
+    public  StockObservation(String date, double percentChange, double sentiment){
         //add volume?????
+        this.date = date;
         perChange = percentChange;
         this.sentiment = sentiment;
     }
@@ -20,5 +22,8 @@ public class StockObservation {
 
     public double getSentiment() { return sentiment; }
     public void setSentiment(double sent) { this.sentiment = sent; }
+
+    public String getDate() { return date; }
+    public void setDate(String Date) { this.date = Date; }
 
 }
