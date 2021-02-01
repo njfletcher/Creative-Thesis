@@ -2,13 +2,16 @@ package com.StockPrediction;
 
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.SequenceRecordReader;
+import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
 import org.datavec.api.records.reader.impl.transform.TransformProcessRecordReader;
 import org.datavec.api.split.FileSplit;
 import org.datavec.api.split.NumberedFileInputSplit;
 import org.datavec.api.transform.transform.doubletransform.MinMaxNormalizer;
 import org.deeplearning4j.core.storage.StatsStorage;
+import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.*;
@@ -44,29 +47,33 @@ public class Dl4jModel {
 
     private File outputPath;
     private int labelIndex = 0;
-    private int miniBatchSize = 32;
+    private int miniBatchSize = 52;
     private static final Logger log = LoggerFactory.getLogger(Dl4jModel.class);
 
 
     public void train() throws Exception {
-
-
-        SequenceRecordReader trainReader = new CSVSequenceRecordReader(0, ",");
+        RecordReader trainReader = new CSVRecordReader(0, ",");
         trainReader.initialize(new FileSplit(new File("files\\Processedtrain.CSV")));
 
         //numPossible labels not used since regression.
-        DataSetIterator trainIter = new SequenceRecordReaderDataSetIterator(trainReader, miniBatchSize, -1, 0, true);
+        DataSetIterator trainIter = new RecordReaderDataSetIterator(trainReader, miniBatchSize, 7, 7, true);
 
+        /*while(trainIter.hasNext()){
+            System.out.println(trainIter.next());
+            System.out.println(" ");
+        }
+
+         */
 
         /*SequenceRecordReader testReader = new CSVSequenceRecordReader(0, ",");
         testReader.initialize(new FileSplit(FileSystemConfig.testFile));
         DataSetIterator testIter = new SequenceRecordReaderDataSetIterator(testReader, miniBatchSize, -1, 0, true);
-
-         */
+        */
 
 
 
         DataNormalization dataNormalization = new NormalizerMinMaxScaler(-1,1);
+
         dataNormalization.fitLabel(true);
         dataNormalization.fit(trainIter);
 
@@ -81,73 +88,25 @@ public class Dl4jModel {
         trainIter.reset();
         //testIter.reset();
 
-        System.out.println(trainData.sample(1));
-        System.out.println(" ");
-        //System.out.println(testData.sample(1));
 
-        //Initialize the user interface backend
-        UIServer uiServer = UIServer.getInstance();
-        //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
-        StatsStorage statsStorage = new InMemoryStatsStorage();         //Alternative: new FileStatsStorage(File), for saving and loading later
-        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
-        uiServer.attach(statsStorage);
-        //Then add the StatsListener to collect this information from the network, as it trains
-
-        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .seed(1234)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .weightInit(WeightInit.XAVIER)
-                .updater(new RmsProp(.001))
-                .l2(1e-4)
-                .list()
-                .layer(0, new GravesLSTM.Builder()
-                        .nIn(1)
-                        .nOut(256)
-                        .activation(Activation.TANH)
-                        .gateActivationFunction(Activation.HARDSIGMOID)
-                        .dropOut(.2)
-                        .build())
-                .layer(1, new GravesLSTM.Builder()
-                        .nIn(256)
-                        .nOut(256)
-                        .activation(Activation.TANH)
-                        .gateActivationFunction(Activation.HARDSIGMOID)
-                        .dropOut(.2)
-                        .build())
-                .layer(2, new DenseLayer.Builder()
-                        .nIn(256)
-                        .nOut(32)
-                        .activation(Activation.RELU)
-                        .build())
-                .layer(3, new RnnOutputLayer.Builder()
-                        .nIn(32)
-                        .nOut(1)
-                        .activation(Activation.IDENTITY)
-                        .lossFunction(LossFunctions.LossFunction.MSE)
-                        .build())
-                .backpropType(BackpropType.TruncatedBPTT)
-                .tBPTTForwardLength(22)
-                .tBPTTBackwardLength(22)
-                .build();
-
-        MultiLayerNetwork model = new MultiLayerNetwork(conf);
-        model.init();
-
-        model.addListeners(new ScoreIterationListener(10));
+        NetworkModel modelBuilder = new NetworkModel();
+        MultiLayerNetwork model = modelBuilder.buildNetwork(7,1);
 
 
-        model.addListeners(new StatsListener(statsStorage));
-
-        int numEpochs = 50;
+        int numEpochs = 200;
         model.fit(trainIter, numEpochs);
 
-        INDArray timeSeriesFeatures = trainData.getFeatures();
+        //model.output();
+
+        /*INDArray timeSeriesFeatures = trainData.getFeatures();
         INDArray timeSeriesOutput = model.output(timeSeriesFeatures);
 
         dataNormalization.revertLabels(timeSeriesOutput);
         dataNormalization.revert(trainData);
 
         compareResults(timeSeriesOutput, trainData);
+
+         */
 
         /*ModelSerializer.writeModel(model, new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\model.txt"),true );
         FileOutputStream fos = new FileOutputStream(new File(FileSystemConfig.normFile));
@@ -158,8 +117,8 @@ public class Dl4jModel {
          */
     }
 
-    //makes prediction using test dataset.
-    public void makePrediction() throws IOException, InterruptedException, ClassNotFoundException {
+    //makes batch of predictions using test dataset.
+    public void makePredictionSet() throws IOException, InterruptedException, ClassNotFoundException {
 
         MultiLayerNetwork net2 = MultiLayerNetwork.load(new File("C:\\Users\\Nicholas\\Desktop\\STOCKPRACTICE\\model.txt"), true);
 

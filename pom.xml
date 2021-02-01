@@ -185,18 +185,12 @@
             <version>16-ea+4</version>
             <type>pom</type>
         </dependency>
-
-
-
-
-
-
-
-
-
-
-
-
+        <!-- https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable -->
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>weka-stable</artifactId>
+            <version>3.8.5</version>
+        </dependency>
 
     </dependencies>
     <properties>

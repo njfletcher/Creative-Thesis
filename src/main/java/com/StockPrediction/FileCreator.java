@@ -68,12 +68,20 @@ public class FileCreator {
         changes = new double[stocksList.size()];
         SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
 
+        //printWriter.println("Close5,Close4,Close3,Close2,Close1,Sentiment,Volume,Label");
 
 
-        for (int i = 1; i < stocksList.size() - 1; i++) {
+        for (int i = 5; i < stocksList.size() - 2; i++) {
 
             //System.out.println("date: " + stocksList.get(i).getDate().getTime() + "Offset Date: " + stocksListOffset.get(i).getDate().getTime());
-            printWriter.println(f.format(stocksList.get(i).getDate().getTime()) + "," + percentChang(i, stocksList) + "," + parseXML(FileSystemConfig.fedFile, f.format(stocksList.get(i).getDate().getTime()), document));
+            printWriter.println(
+                    f.format(stocksList.get(i).getDate().getTime())
+                    + "," + stocksList.get(i-1).getClose().doubleValue()
+                    + "," + stocksList.get(i).getClose().doubleValue()
+                    + "," + parseXML(FileSystemConfig.fedFile, f.format(stocksList.get(i).getDate().getTime()), document)
+                    //+ "," + stocksList.get(i).getVolume().doubleValue()
+                    + "," + stocksList.get(i+1).getClose().doubleValue());
+            //f.format(stocksList.get(i).getDate().getTime())
             //f.format(stocksList.get(i).getDate().getTime())+ "," +
             // + "," + stocksList.get(i).getVolume().doubleValue()
             datesTrain.add(f.format(stocksList.get(i).getDate().getTime()));
@@ -87,6 +95,8 @@ public class FileCreator {
     /*Creates test data or data that the network will make predictions on. Will contain the the last year of a stock's data,
     up until the point of calling this method. This dataset will be used to make a prediction for the next day.
     */
+
+    //Take out last data point from test set and use for actual prediction, set for counter to end one less.
     public void createPredData() throws IOException, JSONException, ParserConfigurationException, DocumentException, SAXException, ParseException {
 
         Calendar from1 = Calendar.getInstance();
@@ -107,10 +117,16 @@ public class FileCreator {
         //printWriter1.println("Date,Change,Volume");
         SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
 
-        for (int i = 1; i < stocksList1.size() - 1; i++) {
+        for (int i = 4; i < stocksList1.size() - 1; i++) {
 
             //System.out.println("date: " + stocksList1.get(i).getDate().getTime() + "Offset Date: " + stocksList1Offset.get(i).getDate().getTime());
-            printWriter1.println(f.format(stocksList1.get(i).getDate().getTime()) + "," +percentChang(i, stocksList1)+ "," + parseXML(FileSystemConfig.fedFile, f.format(stocksList1.get(i).getDate().getTime()), document));
+            printWriter1.println(f.format(
+                    stocksList1.get(i).getDate().getTime())
+                    + "," + stocksList1.get(i-1).getClose().doubleValue()
+                    + "," + stocksList1.get(i).getClose().doubleValue()
+                    + "," + parseXML(FileSystemConfig.fedFile, f.format(stocksList1.get(i).getDate().getTime()), document)
+                    //+ "," + stocksList1.get(i).getVolume().doubleValue()
+                    + "," + stocksList1.get(i+1).getClose().doubleValue());
             //percentChang(i, stocksList1)
             //f.format(stocksList1.get(i).getDate().getTime())+ ","
             // + "," + stocksList1.get(i).getVolume().doubleValue()

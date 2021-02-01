@@ -54,65 +54,23 @@ public class Main {
         FileCreator stockD = new FileCreator(compName, ticker);
 
         stockD.createTrain(FileSystemConfig.trainFile, ticker);
-
         stockD.createPredData();
 
-        //Transform transform = new Transform();
-        //transform.analyze(new File(""));
+        Transform t = new Transform();
+        t.analyze(FileSystemConfig.trainFile, "train");
 
-        String file = "files\\stockReports_train.CSV";
-        String symbol = "GOOG"; // stock name
-        int batchSize = 64; // mini-batch size
-        double splitRatio = 0.9; // 90% for training, 10% for testing
-        int epochs = 100; // training epochs
+        Transform t2 = new Transform();
+        t.analyze(FileSystemConfig.testFile, "test");
 
 
-        PriceCategory category = PriceCategory.CHANGE; // CLOSE: predict close price
-        StockIterator iterator = new StockIterator(file, symbol, batchSize, 22, splitRatio, category);
+        /*Predictor2 pred = new Predictor2();
+        pred.train();
 
-        List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
+         */
 
-
-        MultiLayerNetwork net = NetworkModel.buildNetwork(iterator.inputColumns(), iterator.totalOutcomes());
-
-        for (int i = 0; i < epochs; i++) {
-            while (iterator.hasNext()) net.fit(iterator.next()); // fit model using mini-batch data
-            iterator.reset(); // reset iterator
-            net.rnnClearPreviousState(); // clear previous state
-
-
-        }
-
-
-        File locationToSave = new File("files\\model".concat(String.valueOf(category)).concat(".zip"));
-        // saveUpdater: i.e., the state for Momentum, RMSProp, Adagrad etc. Save this to train your network more in the future
-        ModelSerializer.writeModel(net, locationToSave, true);
-
-
-        net = ModelSerializer.restoreMultiLayerNetwork(locationToSave);
-
-        double max = iterator.getMaxNum(category);
-        double min = iterator.getMinNum(category);
-        predictPriceOneAhead(net, test, max, min, category);
+        WekaPredictor weka = new WekaPredictor();
+        weka.train();
 
 
     }
-
-    private static void predictPriceOneAhead (MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, double max, double min, PriceCategory category) {
-        double[] predicts = new double[testData.size()];
-        double[] actuals = new double[testData.size()];
-        for (int i = 0; i < testData.size(); i++) {
-            predicts[i] = net.rnnTimeStep(testData.get(i).getKey()).getDouble(exampleLength - 1) * (max - min) + min;
-            actuals[i] = testData.get(i).getValue().getDouble(0);
-        }
-
-        for (int i = 0; i < predicts.length; i++){
-            System.out.println(predicts[i] + "," + actuals[i]);
-        }
-
-    }
-
-
-
-
 }
