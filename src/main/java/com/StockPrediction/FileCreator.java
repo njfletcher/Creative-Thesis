@@ -71,16 +71,17 @@ public class FileCreator {
         //printWriter.println("Close5,Close4,Close3,Close2,Close1,Sentiment,Volume,Label");
 
 
-        for (int i = 5; i < stocksList.size() - 2; i++) {
+        for (int i = 4; i < stocksList.size() - 2; i++) {
 
             //System.out.println("date: " + stocksList.get(i).getDate().getTime() + "Offset Date: " + stocksListOffset.get(i).getDate().getTime());
             printWriter.println(
-                    f.format(stocksList.get(i).getDate().getTime())
-                    + "," + stocksList.get(i-1).getClose().doubleValue()
-                    + "," + stocksList.get(i).getClose().doubleValue()
+                    f.format(stocksList.get(i).getDate().getTime())//0
+                    + "," + stocksList.get(i-2).getClose().doubleValue()
+                    + "," + stocksList.get(i-1).getClose().doubleValue()//3
+                    + "," + stocksList.get(i).getClose().doubleValue()//4
                     + "," + parseXML(FileSystemConfig.fedFile, f.format(stocksList.get(i).getDate().getTime()), document)
                     //+ "," + stocksList.get(i).getVolume().doubleValue()
-                    + "," + stocksList.get(i+1).getClose().doubleValue());
+                    + "," + stocksList.get(i+1).getClose().doubleValue());//5(label)
             //f.format(stocksList.get(i).getDate().getTime())
             //f.format(stocksList.get(i).getDate().getTime())+ "," +
             // + "," + stocksList.get(i).getVolume().doubleValue()
@@ -120,8 +121,9 @@ public class FileCreator {
         for (int i = 4; i < stocksList1.size() - 1; i++) {
 
             //System.out.println("date: " + stocksList1.get(i).getDate().getTime() + "Offset Date: " + stocksList1Offset.get(i).getDate().getTime());
-            printWriter1.println(f.format(
-                    stocksList1.get(i).getDate().getTime())
+            printWriter1.println(
+                    f.format(stocksList1.get(i).getDate().getTime())
+                    + "," + stocksList1.get(i-2).getClose().doubleValue()
                     + "," + stocksList1.get(i-1).getClose().doubleValue()
                     + "," + stocksList1.get(i).getClose().doubleValue()
                     + "," + parseXML(FileSystemConfig.fedFile, f.format(stocksList1.get(i).getDate().getTime()), document)

@@ -3,12 +3,13 @@
 Neural network frameworks used:
 - Deeplearning4j
   - https://deeplearning4j.org
-- Encog
-  - https://www.heatonresearch.com
-  - https://jmlr.org/papers/volume16/heaton15a/heaton15a.pdf
+- Weka
+  - https://www.cs.waikato.ac.nz/ml/weka/
 
 Datasources:
 - YahooFinanceAPI
   - https://github.com/sstrickx/yahoofinance-api
+- Federal Reserve Bank of St. Louis
+    - https://fred.stlouisfed.org/
   
-  This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.
+  

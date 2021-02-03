@@ -42,7 +42,7 @@ public class Transform {
         // the String to label conversion. Define schema and transform:
         Schema schema = new Schema.Builder()
                 .addColumnString("date")
-                .addColumnsDouble("close1","close2","sentiment","label")
+                .addColumnsDouble("close1","close2","close3","sentiment", "label")
                 //"volume",
 
                 .build();

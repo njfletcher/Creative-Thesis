@@ -191,6 +191,13 @@
             <artifactId>weka-stable</artifactId>
             <version>3.8.5</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/timeseriesForecasting -->
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>timeseriesForecasting</artifactId>
+            <version>1.1.27</version>
+        </dependency>
+
 
     </dependencies>
     <properties>

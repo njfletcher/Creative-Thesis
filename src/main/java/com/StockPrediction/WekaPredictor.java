@@ -1,14 +1,19 @@
 package com.StockPrediction;
 
-import weka.classifiers.functions.MultilayerPerceptron;
-import weka.classifiers.functions.SMO;
-import weka.classifiers.functions.SMOreg;
+import org.apache.spark.sql.sources.In;
+import weka.classifiers.functions.*;
+import weka.classifiers.functions.supportVector.*;
 import weka.classifiers.lazy.IBk;
+import weka.classifiers.pmml.consumer.Regression;
+import weka.classifiers.rules.ZeroR;
 import weka.classifiers.trees.M5P;
+import weka.classifiers.trees.REPTree;
 import weka.classifiers.trees.RandomForest;
 import weka.classifiers.trees.RandomTree;
+import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.SelectedTag;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils;
@@ -28,15 +33,14 @@ public class WekaPredictor {
 
         trainDataSet.setClassIndex(trainDataSet.numAttributes()-1);
 
-        for(int i =0; i<trainDataSet.numInstances();i++){
+        /*for(int i =0; i<trainDataSet.numInstances();i++){
             System.out.println(trainDataSet.get(i).classValue());
         }
 
+         */
+
         SMOreg smo = new SMOreg();
         smo.buildClassifier(trainDataSet);
-
-        M5P m5p = new M5P();
-        m5p.buildClassifier(trainDataSet);
 
         System.out.println(smo);
 
@@ -53,14 +57,24 @@ public class WekaPredictor {
 
             Instance newInst = testDataSet.get(i);
 
+
             double pred = smo.classifyInstance(newInst);
             //(smo.classifyInstance(newInst) + m5p.classifyInstance(newInst)) /2
 
             numRight += calcAccuracy(actual, pred, newInst);
-            System.out.println(actual + ", " + pred);
-
+            //System.out.println(actual + ", " + pred);
         }
         System.out.println(numRight + "/ " + testDataSet.numInstances());
+
+       // double[] values = new double[]{1917.23999,1830.790039,1863.109985,1835.73999, 0}; // DOESNT PAY ATTENTION TO LAST VALUE(LABEL) PUT ANYTHING
+        //Instance testInstance = new DenseInstance(1.0, values);
+        //testInstance.setDataset(testDataSet);
+
+
+        //predictAhead(smo, testDataSet);
+        
+
+
     }
     public void writeARFF(File file, String dataType) throws IOException {
         CSVLoader loader = new CSVLoader();
@@ -76,9 +90,10 @@ public class WekaPredictor {
     }
     public int calcAccuracy(double actual, double pred, Instance dataPoint){
 
-        double stepBackOne = dataPoint.value(1);
+        double stepBackOne = dataPoint.value(2);
         double actualChange = actual - stepBackOne;
         double predChange = pred - stepBackOne;
+
 
         //CALCULATE PERCENT CHANGE NOT JUST DOLLAR AMOUNT
 
@@ -87,10 +102,21 @@ public class WekaPredictor {
 
         if(Math.signum(actualChange) == Math.signum(predChange)){
             return 1;
+
         }
         else{
             return 0;
         }
 
+    }
+    public void predictAhead(SMOreg smo, Instances testData) throws Exception {
+        //double[] values = new double[]{}; // DOESNT PAY ATTENTION TO LAST VALUE(LABEL) PUT ANYTHING
+
+
+        Instance testInstance = testData.lastInstance();
+
+
+
+        System.out.println("RESULT: " + smo.classifyInstance(testInstance));
     }
 }

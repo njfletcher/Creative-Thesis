@@ -35,42 +35,58 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        BasicConfigurator.configure();
+        //BasicConfigurator.configure();
 
 
-        Scanner sc = new Scanner(System.in);
+        Scanner input = new Scanner(System.in);
+        boolean running = true;
 
-        System.out.println("Enter Company name: ");
-        String compName = sc.next();
-
-        System.out.println("Enter Company ticker: ");
-        String ticker = sc.next();
-        NewsSentiment news = new NewsSentiment(compName, ticker);
-        news.getCompanyInfo();
-        news.displayInfo();
-
-        news.getData();
-
-        FileCreator stockD = new FileCreator(compName, ticker);
-
-        stockD.createTrain(FileSystemConfig.trainFile, ticker);
-        stockD.createPredData();
-
-        Transform t = new Transform();
-        t.analyze(FileSystemConfig.trainFile, "train");
-
-        Transform t2 = new Transform();
-        t.analyze(FileSystemConfig.testFile, "test");
+        File title = new File(FileSystemConfig.baseDir + "TITLE.TXT");
+        Scanner fileRead = new Scanner(title);
 
 
-        /*Predictor2 pred = new Predictor2();
-        pred.train();
+        int lineNumber = 1;
+        while(fileRead.hasNextLine()){
+            String line = fileRead.nextLine();
+            System.out.println(line);
+            lineNumber++;
+        }
 
-         */
+        while(running){
 
-        WekaPredictor weka = new WekaPredictor();
-        weka.train();
+            System.out.println(" ");
+            System.out.println("Enter Company name: ");
+            String compName = input.next();
 
+            if(compName.equals("exit")){
+                System.exit(0);
+            }
+
+
+            System.out.println("Enter Company ticker: ");
+            String ticker = input.next();
+            if(ticker.equals("exit")){
+                System.exit(0);
+            }
+
+            NewsSentiment news = new NewsSentiment(compName, ticker);
+            news.getCompanyInfo();
+            news.displayInfo();
+            news.getData();
+
+            FileCreator stockD = new FileCreator(compName, ticker);
+            stockD.createTrain(FileSystemConfig.trainFile, ticker);
+            stockD.createPredData();
+
+            Transform t = new Transform();
+            t.analyze(FileSystemConfig.trainFile, "train");
+
+            Transform t2 = new Transform();
+            t.analyze(FileSystemConfig.testFile, "test");
+
+            WekaPredictor weka = new WekaPredictor();
+            weka.train();
+        }
 
     }
 }
