@@ -1,4 +1,4 @@
-# Creative-Thesis
+# Stock Prediction 2020
 
 Neural network frameworks used:
 - Deeplearning4j
