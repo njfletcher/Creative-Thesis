@@ -1,23 +1,10 @@
 package com.StockPrediction;
-
-import org.apache.spark.sql.sources.In;
 import weka.classifiers.functions.*;
-import weka.classifiers.functions.supportVector.*;
-import weka.classifiers.lazy.IBk;
-import weka.classifiers.pmml.consumer.Regression;
-import weka.classifiers.rules.ZeroR;
-import weka.classifiers.trees.M5P;
-import weka.classifiers.trees.REPTree;
-import weka.classifiers.trees.RandomForest;
-import weka.classifiers.trees.RandomTree;
-import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.SelectedTag;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils;
-
 import java.io.File;
 import java.io.IOException;
 

@@ -1,7 +1,6 @@
 package com.StockPrediction;
 
 import org.encog.util.csv.CSVFormat;
-
 import java.io.File;
 
 public class FileSystemConfig {

@@ -1,21 +1,13 @@
 package com.StockPrediction;
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
-import java.net.URI;
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.Scanner;
-
-import com.google.gson.GsonBuilder;
 import org.jsoup.*;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 

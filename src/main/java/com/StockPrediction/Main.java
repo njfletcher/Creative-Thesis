@@ -1,20 +1,6 @@
 package com.StockPrediction;
 
-
-
-import org.apache.commons.math3.util.Pair;
-import org.apache.log4j.BasicConfigurator;
-import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
-
-import org.deeplearning4j.util.ModelSerializer;
-import org.nd4j.common.io.ClassPathResource;
-
-import org.nd4j.linalg.api.ndarray.INDArray;
-
-
-
 import java.io.File;
-import java.util.List;
 import java.util.Scanner;
 
 

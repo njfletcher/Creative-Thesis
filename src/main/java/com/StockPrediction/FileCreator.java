@@ -1,16 +1,11 @@
 package com.StockPrediction;
 
-
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
 import org.dom4j.io.SAXReader;
 import org.json.JSONException;
 import org.json.simple.parser.ParseException;
-import org.knowm.xchart.QuickChart;
-import org.knowm.xchart.SwingWrapper;
-import org.knowm.xchart.XYChart;
 import org.xml.sax.SAXException;
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
