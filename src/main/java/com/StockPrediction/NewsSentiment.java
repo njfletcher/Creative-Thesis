@@ -64,6 +64,8 @@ public class NewsSentiment {
         //System.out.println(compSector + " ; " + compIndustry);
 
     }
+
+    //prints out additional information of a company, in a readable format
     public void displayInfo(){
 
         System.out.println("--------------------------------------------------------");
@@ -75,6 +77,7 @@ public class NewsSentiment {
         System.out.println("--------------------------------------------------------");
     }
 
+    //Fetches data from FRED.Economic policy uncertainty index data.
     public void getData() throws IOException {
 
         String url = "https://api.stlouisfed.org/fred/series/observations?series_id=USEPUINDXD&api_key=" + System.getenv("API_KEY");

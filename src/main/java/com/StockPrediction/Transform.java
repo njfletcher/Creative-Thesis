@@ -39,34 +39,26 @@ public class Transform {
     public void analyze(File file, String data) throws Exception {
 
 
-        // the String to label conversion. Define schema and transform:
-        Schema schema = new Schema.Builder()
+        //defines structure of the input file
+        Schema inSchema = new Schema.Builder()
                 .addColumnString("date")
                 .addColumnsDouble("close1","close2","close3","sentiment", "label")
-                //"volume",
-
                 .build();
 
         System.out.println("*****************Starting Schema*****************");
-        System.out.println(schema.toString());
+        System.out.println(inSchema.toString());
         System.out.println("*************************************************");
 
 
         RecordReader trainReader = new CSVRecordReader();
         trainReader.initialize(new FileSplit(file));
 
-        DataAnalysis analysis = AnalyzeLocal.analyze(schema, trainReader);
-        HtmlAnalysis.createHtmlAnalysisFile(analysis, new File("Analysis" + data + ".HTML"));
 
 
-        TransformProcess tp = new TransformProcess.Builder(schema)
+
+        //removes date column from datasets.
+        TransformProcess tp = new TransformProcess.Builder(inSchema)
                 .removeColumns("date")
-                //.normalize("close1", Normalize.MinMax,analysis)
-                //.normalize("close2", Normalize.MinMax,analysis)
-                //.normalize("sentiment", Normalize.MinMax,analysis)
-                //.normalize("volume", Normalize.MinMax,analysis)
-                //.normalize("label", Normalize.MinMax,analysis)
-
                 .build();
 
         System.out.println("*****************Final Schema*****************");
@@ -80,9 +72,8 @@ public class Transform {
         }
         outputFile.createNewFile();
         FileWriter fileWriter = new FileWriter(outputFile);
-        PrintWriter printWriter = new PrintWriter(fileWriter);
 
-        //Define input reader and output writer:
+
         RecordReader rr = new CSVRecordReader(1, ',');
         rr.initialize(new FileSplit(inputFile));
 
@@ -92,7 +83,7 @@ public class Transform {
 
 
 
-        //Process the data:
+        //Processes data
         List<List<Writable>> originalData = new ArrayList<>();
 
         while(rr.hasNext()){

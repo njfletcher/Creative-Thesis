@@ -76,10 +76,10 @@ public class FileCreator {
             //System.out.println("date: " + stocksList.get(i).getDate().getTime() + "Offset Date: " + stocksListOffset.get(i).getDate().getTime());
             printWriter.println(
                     f.format(stocksList.get(i).getDate().getTime())//0
-                    + "," + stocksList.get(i-2).getClose().doubleValue()
-                    + "," + stocksList.get(i-1).getClose().doubleValue()//3
-                    + "," + stocksList.get(i).getClose().doubleValue()//4
-                    + "," + parseXML(FileSystemConfig.fedFile, f.format(stocksList.get(i).getDate().getTime()), document)
+                    + "," + stocksList.get(i-2).getClose().doubleValue()//1
+                    + "," + stocksList.get(i-1).getClose().doubleValue()//2
+                    + "," + stocksList.get(i).getClose().doubleValue()//3
+                    + "," + parseXML(FileSystemConfig.fedFile, f.format(stocksList.get(i).getDate().getTime()), document)//4
                     //+ "," + stocksList.get(i).getVolume().doubleValue()
                     + "," + stocksList.get(i+1).getClose().doubleValue());//5(label)
             //f.format(stocksList.get(i).getDate().getTime())
@@ -90,14 +90,12 @@ public class FileCreator {
         }
 
         printWriter.close();
-        //graph();
     }
 
     /*Creates test data or data that the network will make predictions on. Will contain the the last year of a stock's data,
     up until the point of calling this method. This dataset will be used to make a prediction for the next day.
     */
 
-    //Take out last data point from test set and use for actual prediction, set for counter to end one less.
     public void createPredData() throws IOException, JSONException, ParserConfigurationException, DocumentException, SAXException, ParseException {
 
         Calendar from1 = Calendar.getInstance();
@@ -122,13 +120,13 @@ public class FileCreator {
 
             //System.out.println("date: " + stocksList1.get(i).getDate().getTime() + "Offset Date: " + stocksList1Offset.get(i).getDate().getTime());
             printWriter1.println(
-                    f.format(stocksList1.get(i).getDate().getTime())
-                    + "," + stocksList1.get(i-2).getClose().doubleValue()
-                    + "," + stocksList1.get(i-1).getClose().doubleValue()
-                    + "," + stocksList1.get(i).getClose().doubleValue()
-                    + "," + parseXML(FileSystemConfig.fedFile, f.format(stocksList1.get(i).getDate().getTime()), document)
+                    f.format(stocksList1.get(i).getDate().getTime())//0
+                    + "," + stocksList1.get(i-2).getClose().doubleValue()//1
+                    + "," + stocksList1.get(i-1).getClose().doubleValue()//2
+                    + "," + stocksList1.get(i).getClose().doubleValue()//3
+                    + "," + parseXML(FileSystemConfig.fedFile, f.format(stocksList1.get(i).getDate().getTime()), document)//4
                     //+ "," + stocksList1.get(i).getVolume().doubleValue()
-                    + "," + stocksList1.get(i+1).getClose().doubleValue());
+                    + "," + stocksList1.get(i+1).getClose().doubleValue());//5(LABEL)
             //percentChang(i, stocksList1)
             //f.format(stocksList1.get(i).getDate().getTime())+ ","
             // + "," + stocksList1.get(i).getVolume().doubleValue()
@@ -139,24 +137,13 @@ public class FileCreator {
         printWriter1.close();
     }
 
+    //Calculates percent change. Not used right now.
     private double percentChang(int i, List<HistoricalQuote> norm) {
 
         return (norm.get(i).getClose().doubleValue() - norm.get(i - 1).getClose().doubleValue()) / norm.get(i - 1).getClose().doubleValue() * 100;
     }
 
-    public void graph() {
-        int seriesLength = changes.length;
-        double[] timesteps = new double[seriesLength];
-        for (int i = 0; i < seriesLength; i++) {
-            timesteps[i] = (double) i;
-        }
-        // Create Chart
-        XYChart chart = QuickChart.getChart("Sample Chart", "X", "Y", "y(x)", timesteps, changes);
-        // Show it
-        new SwingWrapper(chart).displayChart();
-    }
-
-    //provided a date, will parse the Federal Reserve of STL json file and output the Treasury value.
+    //provided a date, will parse the Federal Reserve of STL XML file and output the NEWS SENTIMENT value.
     public String parseXML(String fileName, String date, Document doc) throws ParserConfigurationException, IOException, SAXException, ParseException, JSONException, DocumentException {
 
         String value = null;

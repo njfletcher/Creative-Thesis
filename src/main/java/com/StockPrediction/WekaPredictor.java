@@ -36,8 +36,7 @@ public class WekaPredictor {
         /*for(int i =0; i<trainDataSet.numInstances();i++){
             System.out.println(trainDataSet.get(i).classValue());
         }
-
-         */
+        */
 
         SMOreg smo = new SMOreg();
         smo.buildClassifier(trainDataSet);
@@ -51,27 +50,47 @@ public class WekaPredictor {
         testDataSet.setClassIndex(testDataSet.numAttributes()-1);
 
         int numRight =0;
+        double magRight= 0;
+        double magWrong =0;
+
 
         for(int i =0; i<testDataSet.numInstances()-1;i++){
             double actual = testDataSet.get(i).classValue();
+
 
             Instance newInst = testDataSet.get(i);
 
 
             double pred = smo.classifyInstance(newInst);
-            //(smo.classifyInstance(newInst) + m5p.classifyInstance(newInst)) /2
 
-            numRight += calcAccuracy(actual, pred, newInst);
-            //System.out.println(actual + ", " + pred);
+            double stepBackOne = newInst.value(2);
+            double actualChange = actual - stepBackOne;
+            double predChange = pred - stepBackOne;
+
+
+            if(Math.signum(actualChange) == Math.signum(predChange)){
+                numRight++;
+                if(actualChange>predChange){
+                    magRight += actualChange -predChange;
+                }else{
+                    magRight += predChange - actualChange;
+                }
+            }else{
+                if(actualChange>predChange){
+                    magWrong += actualChange -predChange;
+                }
+                else{
+                    magWrong += predChange - actualChange;
+                }
+            }
         }
-        System.out.println(numRight + "/ " + testDataSet.numInstances());
-
-       // double[] values = new double[]{1917.23999,1830.790039,1863.109985,1835.73999, 0}; // DOESNT PAY ATTENTION TO LAST VALUE(LABEL) PUT ANYTHING
-        //Instance testInstance = new DenseInstance(1.0, values);
-        //testInstance.setDataset(testDataSet);
+        System.out.println("Predictions right vs wrong: " + numRight + "/" + testDataSet.numInstances());
+        System.out.println("AVG MAG OF RIGHT: " + magRight / numRight);
+        System.out.println("AVG MAG OF WRONG: " + magWrong /(testDataSet.numInstances() - numRight));
 
 
-        //predictAhead(smo, testDataSet);
+        //PREDICTION ONE DAY AHEAD, USING LAST KNOWN DATAPOINT(USUALLY PREVIOUS DAY)
+        System.out.println("Prediction for next day: " + predictAhead(smo, testDataSet));
         
 
 
@@ -81,42 +100,20 @@ public class WekaPredictor {
         loader.setSource(file);
         Instances data = loader.getDataSet();//get instances object
 
-        // save ARFF
+        // saves ARFF(Datatype Weka can understand)
         ArffSaver saver = new ArffSaver();
         saver.setInstances(data);//set the dataset we want to convert
         //and save as ARFF
         saver.setFile(new File("files\\weka" + dataType + ".ARFF"));
         saver.writeBatch();
     }
-    public int calcAccuracy(double actual, double pred, Instance dataPoint){
-
-        double stepBackOne = dataPoint.value(2);
-        double actualChange = actual - stepBackOne;
-        double predChange = pred - stepBackOne;
 
 
-        //CALCULATE PERCENT CHANGE NOT JUST DOLLAR AMOUNT
 
-        System.out.println(actualChange + ", " + predChange);
-        //actualChange + ", " + predChange
-
-        if(Math.signum(actualChange) == Math.signum(predChange)){
-            return 1;
-
-        }
-        else{
-            return 0;
-        }
-
-    }
-    public void predictAhead(SMOreg smo, Instances testData) throws Exception {
-        //double[] values = new double[]{}; // DOESNT PAY ATTENTION TO LAST VALUE(LABEL) PUT ANYTHING
-
-
+    //makes a prediction one step ahead
+    public double predictAhead(SMOreg smo, Instances testData) throws Exception {
         Instance testInstance = testData.lastInstance();
 
-
-
-        System.out.println("RESULT: " + smo.classifyInstance(testInstance));
+        return smo.classifyInstance(testInstance);
     }
 }
