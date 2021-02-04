@@ -61,8 +61,6 @@ public class Main {
 
             Transform t = new Transform();
             t.analyze(FileSystemConfig.trainFile, "train");
-
-            Transform t2 = new Transform();
             t.analyze(FileSystemConfig.testFile, "test");
 
             WekaPredictor weka = new WekaPredictor();
